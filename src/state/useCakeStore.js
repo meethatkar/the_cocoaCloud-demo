@@ -47,10 +47,19 @@ export const useCakeStore = create((set, get) => ({
   },
 
   setShape: (shape) => {
-    set((state) => ({
-      config: { ...state.config, shape },
-      selectedPresetId: null,
-    }));
+    set((state) => {
+      let updatedDecorations = state.config.decorations || [];
+      // Ribbon is not supported on Heart shape
+      if (shape === "Heart") {
+        updatedDecorations = updatedDecorations.filter(
+          (id) => id !== "white_fondant_drape"
+        );
+      }
+      return {
+        config: { ...state.config, shape, decorations: updatedDecorations },
+        selectedPresetId: null,
+      };
+    });
   },
 
   setFlavorColor: (flavorColor) => {
@@ -83,6 +92,10 @@ export const useCakeStore = create((set, get) => ({
 
   toggleDecoration: (decorationId) => {
     set((state) => {
+      // Ribbon addon is disabled for Heart shape
+      if (decorationId === "white_fondant_drape" && state.config.shape === "Heart") {
+        return state;
+      }
       const current = state.config.decorations || [];
       const exists = current.includes(decorationId);
       const updated = exists

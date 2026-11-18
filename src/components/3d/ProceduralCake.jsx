@@ -97,39 +97,62 @@ function ProceduralCakeComponent({ config }) {
   // 1. MATHEMATICALLY CENTERED HEART GEOMETRIES (Tiers 1, 2, 3)
   // -------------------------------------------------------------
   const { heartGeoms, heartPerimeterPoints } = useMemo(() => {
+    // Exact analytical centroid offset of parametric heart: y(t) ranges from -17 to 11.92306
+    const yCenter = -2.53847;
+
     const makeHeartShapeAndPoints = (scale, count = 48) => {
       const shape = new THREE.Shape();
       const points = [];
-      const steps = 100;
+      const steps = 120;
 
       for (let i = 0; i <= steps; i++) {
         const t = (i / steps) * Math.PI * 2;
-        const x = 16 * Math.pow(Math.sin(t), 3);
-        const y =
-          13 * Math.cos(t) -
+        const sinT = Math.sin(t);
+        const cosT = Math.cos(t);
+        const x = Math.pow(sinT, 3) * scale;
+        const rawY =
+          13 * cosT -
           5 * Math.cos(2 * t) -
           2 * Math.cos(3 * t) -
           Math.cos(4 * t);
+        const y = ((rawY - yCenter) / 16) * scale;
 
-        const px = (x / 16) * scale;
-        const py = ((y + 2.5) / 16) * scale;
-
-        if (i === 0) shape.moveTo(px, py);
-        else shape.lineTo(px, py);
+        if (i === 0) shape.moveTo(x, y);
+        else shape.lineTo(x, y);
       }
 
       for (let i = 0; i < count; i++) {
         const t = (i / count) * Math.PI * 2;
-        const x = 16 * Math.pow(Math.sin(t), 3);
-        const y =
-          13 * Math.cos(t) -
+        const sinT = Math.sin(t);
+        const cosT = Math.cos(t);
+        const x = Math.pow(sinT, 3) * scale;
+        const rawY =
+          13 * cosT -
           5 * Math.cos(2 * t) -
           2 * Math.cos(3 * t) -
           Math.cos(4 * t);
-        // Note: Outer offset (1.05) so piping/drips sit outside bevel
-        const px = (x / 16) * scale * 1.05;
-        const pz = -((y + 2.5) / 16) * scale * 1.05;
-        points.push({ x: px, z: pz });
+        const z = -((rawY - yCenter) / 16) * scale;
+
+        // Tangent & Normal vectors in 3D XZ plane
+        const dx = 3 * sinT * sinT * cosT * scale;
+        const dRawY =
+          -13 * sinT +
+          10 * Math.sin(2 * t) +
+          6 * Math.sin(3 * t) +
+          4 * Math.sin(4 * t);
+        const dz = -(dRawY / 16) * scale;
+        let nx = dz;
+        let nz = -dx;
+        const len = Math.hypot(nx, nz);
+        if (len > 0.0001) {
+          nx /= len;
+          nz /= len;
+        }
+
+        // Sit right on the outer bevel perimeter
+        const px = x + nx * 0.055;
+        const pz = z + nz * 0.055;
+        points.push({ x: px, z: pz, nx, nz });
       }
 
       return { shape, points };
@@ -143,8 +166,8 @@ function ProceduralCakeComponent({ config }) {
       depth: t1Height,
       bevelEnabled: true,
       bevelSegments: 6,
-      bevelSize: 0.06,
-      bevelThickness: 0.06,
+      bevelSize: 0.05,
+      bevelThickness: 0.05,
     });
     ext1.center();
 
@@ -152,8 +175,8 @@ function ProceduralCakeComponent({ config }) {
       depth: t2Height,
       bevelEnabled: true,
       bevelSegments: 6,
-      bevelSize: 0.05,
-      bevelThickness: 0.05,
+      bevelSize: 0.045,
+      bevelThickness: 0.045,
     });
     ext2.center();
 
@@ -412,24 +435,37 @@ function ProceduralCakeComponent({ config }) {
         )}
 
         {/* Front Calligraphy Inscription Plaque */}
-        <group position={[0, t1Y, plaqueZ]}>
+        <group
+          position={
+            shape === "Square"
+              ? [0, t1Y, 1.72]
+              : shape === "Heart"
+              ? [0.42, t1Y, 1.34]
+              : [0, t1Y, 2.08]
+          }
+          rotation={
+            shape === "Heart"
+              ? [0, 0.893, 0]
+              : [0, 0, 0]
+          }
+        >
           <mesh castShadow receiveShadow>
-            <boxGeometry args={[1.5, 0.44, 0.04]} />
+            <boxGeometry args={[shape === "Heart" ? 1.22 : 1.5, 0.44, 0.04]} />
             <meshStandardMaterial color="#2C1E18" roughness={0.25} metalness={0.2} />
           </mesh>
 
-          <mesh position={[0, 0, 0.02]}>
-            <boxGeometry args={[1.54, 0.48, 0.015]} />
+          <mesh position={[0, 0, 0.021]}>
+            <boxGeometry args={[shape === "Heart" ? 1.26 : 1.54, 0.48, 0.015]} />
             <meshStandardMaterial color="#C5A059" roughness={0.25} metalness={0.85} />
           </mesh>
 
           <Text
-            position={[0, 0, 0.03]}
-            fontSize={0.11}
+            position={[0, 0, 0.035]}
+            fontSize={shape === "Heart" ? 0.095 : 0.11}
             color="#FAF6F0"
             anchorX="center"
             anchorY="middle"
-            maxWidth={1.4}
+            maxWidth={shape === "Heart" ? 1.15 : 1.4}
           >
             {customText || "Cocoa & Cloud"}
           </Text>
@@ -677,7 +713,13 @@ function ProceduralCakeComponent({ config }) {
       <ActiveDecorations
         decorations={decorations}
         topTierY={topTierY}
-        topRadius={shape === "Square" ? 1.6 : topRadius}
+        topRadius={
+          shape === "Square"
+            ? (tiers === 1 ? 1.6 : tiers === 2 ? 1.15 : 0.72)
+            : shape === "Heart"
+            ? (tiers === 1 ? 1.95 : tiers === 2 ? 1.35 : 0.85)
+            : topRadius
+        }
         tierCount={tiers}
         shape={shape}
         t1Height={t1Height}

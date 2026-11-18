@@ -121,6 +121,7 @@ export function CakeBuilderSection() {
           {/* Step 6: Decorations & Florals */}
           <DecorationsSelector
             decorations={config.decorations}
+            shape={config.shape}
             onToggle={toggleDecoration}
           />
 

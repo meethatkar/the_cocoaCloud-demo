@@ -93,19 +93,20 @@ const Sprinkles = memo(function Sprinkles({ topTierY = 2.1, shape = "Round", top
         x = (Math.random() * 2 - 1) * half;
         z = (Math.random() * 2 - 1) * half;
       } else if (shape === "Heart") {
-        // Rejection sample inside heart
-        let valid = false;
-        let attempts = 0;
-        while (!valid && attempts < 20) {
-          attempts++;
-          const rx = (Math.random() * 2 - 1) * topRadius * 0.9;
-          const rz = (Math.random() * 2 - 1) * topRadius * 0.9;
-          if (rx * rx + rz * rz < topRadius * topRadius) {
-            x = rx;
-            z = rz - 0.05;
-            valid = true;
-          }
-        }
+        // Star-convex uniform sampling strictly inside the heart top surface
+        const t = Math.random() * Math.PI * 2;
+        const u = Math.sqrt(Math.random()) * 0.88;
+        const sinT = Math.sin(t);
+        const cosT = Math.cos(t);
+        const hx = Math.pow(sinT, 3) * topRadius;
+        const rawY =
+          13 * cosT -
+          5 * Math.cos(2 * t) -
+          2 * Math.cos(3 * t) -
+          Math.cos(4 * t);
+        const hz = -((rawY - (-2.53847)) / 16) * topRadius;
+        x = hx * u;
+        z = hz * u;
       } else {
         // Round
         const r = Math.sqrt(Math.random()) * (topRadius * 0.82);
@@ -164,13 +165,27 @@ const SugarRoses = memo(function SugarRoses({
     }
 
     if (shape === "Heart") {
-      // 4 Roses along the romantic lobes, front curve and sides
-      const s = tierCount >= 2 ? 0.75 : 1.1;
+      // 4 Roses strategically placed on the romantic heart curves
+      const s = tierCount >= 2 ? 1.48 : 1.70;
+      const getHeartRosePt = (deg) => {
+        const t = (deg * Math.PI) / 180;
+        const sinT = Math.sin(t);
+        const cosT = Math.cos(t);
+        const x = Math.pow(sinT, 3) * s;
+        const rawY =
+          13 * cosT -
+          5 * Math.cos(2 * t) -
+          2 * Math.cos(3 * t) -
+          Math.cos(4 * t);
+        const z = -((rawY - (-2.53847)) / 16) * s;
+        return [x, yPos, z];
+      };
+
       return [
-        [0.85 * s, yPos, 0.25 * s],
-        [-0.85 * s, yPos, 0.25 * s],
-        [0, yPos, 0.95 * s],
-        [0, yPos, -0.6 * s],
+        getHeartRosePt(45), // Right lobe peak
+        getHeartRosePt(315), // Left lobe peak
+        getHeartRosePt(135), // Front-right curve
+        getHeartRosePt(225), // Front-left curve
       ];
     }
 
@@ -235,9 +250,9 @@ const GoldLeaf = memo(function GoldLeaf({
   const flakes = useMemo(() => {
     const list = [];
     const tierData = [
-      { y: t1Height * 0.5, hRadius: 1.68, rRadius: 2.08, sHalf: 1.69 },
-      { y: t1Height + t2Height * 0.5, hRadius: 1.18, rRadius: 1.48, sHalf: 1.22 },
-      { y: t1Height + t2Height + t3Height * 0.5, hRadius: 0.75, rRadius: 0.92, sHalf: 0.76 },
+      { y: t1Height * 0.5, hScale: 1.95, rRadius: 2.08, sHalf: 1.69 },
+      { y: t1Height + t2Height * 0.5, hScale: 1.35, rRadius: 1.48, sHalf: 1.22 },
+      { y: t1Height + t2Height + t3Height * 0.5, hScale: 0.85, rRadius: 0.92, sHalf: 0.76 },
     ];
 
     const activeTiers = tierData.slice(0, tiers);
@@ -275,19 +290,36 @@ const GoldLeaf = memo(function GoldLeaf({
           }
         } else if (shape === "Heart") {
           // Outward normal on heart perimeter
-          const theta = (i / count) * Math.PI * 2;
-          const hx = (16 * Math.pow(Math.sin(theta), 3)) / 16;
-          const hy =
-            (13 * Math.cos(theta) -
-              5 * Math.cos(2 * theta) -
-              2 * Math.cos(3 * theta) -
-              Math.cos(4 * theta) +
-              2.5) /
-            16;
-          const scale = td.hRadius * 1.05;
-          x = hx * scale;
-          z = -hy * scale;
-          rotY = Math.atan2(x, z);
+          const t = (i / count) * Math.PI * 2;
+          const sinT = Math.sin(t);
+          const cosT = Math.cos(t);
+          const s = td.hScale;
+          const hx = Math.pow(sinT, 3) * s;
+          const rawY =
+            13 * cosT -
+            5 * Math.cos(2 * t) -
+            2 * Math.cos(3 * t) -
+            Math.cos(4 * t);
+          const hz = -((rawY - (-2.53847)) / 16) * s;
+
+          const dx = 3 * sinT * sinT * cosT * s;
+          const dRawY =
+            -13 * sinT +
+            10 * Math.sin(2 * t) +
+            6 * Math.sin(3 * t) +
+            4 * Math.sin(4 * t);
+          const dz = -(dRawY / 16) * s;
+          let nx = dz;
+          let nz = -dx;
+          const len = Math.hypot(nx, nz);
+          if (len > 0.0001) {
+            nx /= len;
+            nz /= len;
+          }
+
+          x = hx + nx * 0.065;
+          z = hz + nz * 0.065;
+          rotY = Math.atan2(nx, nz);
         } else {
           // Round
           const theta = (i / count) * Math.PI * 2 + tIdx * 0.7;
@@ -360,13 +392,36 @@ const SilverPearls = memo(function SilverPearls({
           }
         }
       } else if (shape === "Heart") {
-        const scale = (tIdx === 0 ? 1.95 : tIdx === 1 ? 1.35 : 0.85) * 1.05;
+        const s = tIdx === 0 ? 1.95 : tIdx === 1 ? 1.35 : 0.85;
         const count = tIdx === 0 ? 48 : tIdx === 1 ? 34 : 22;
         for (let i = 0; i < count; i++) {
           const t = (i / count) * Math.PI * 2;
-          const x = (16 * Math.pow(Math.sin(t), 3) / 16) * scale;
-          const y = ((13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t) + 2.5) / 16) * scale;
-          pts.push([x, baseY, -y]);
+          const sinT = Math.sin(t);
+          const cosT = Math.cos(t);
+          const hx = Math.pow(sinT, 3) * s;
+          const rawY =
+            13 * cosT -
+            5 * Math.cos(2 * t) -
+            2 * Math.cos(3 * t) -
+            Math.cos(4 * t);
+          const hz = -((rawY - (-2.53847)) / 16) * s;
+
+          const dx = 3 * sinT * sinT * cosT * s;
+          const dRawY =
+            -13 * sinT +
+            10 * Math.sin(2 * t) +
+            6 * Math.sin(3 * t) +
+            4 * Math.sin(4 * t);
+          const dz = -(dRawY / 16) * s;
+          let nx = dz;
+          let nz = -dx;
+          const len = Math.hypot(nx, nz);
+          if (len > 0.0001) {
+            nx /= len;
+            nz /= len;
+          }
+
+          pts.push([hx + nx * 0.065, baseY, hz + nz * 0.065]);
         }
       } else {
         // Round
@@ -414,59 +469,162 @@ const SilverPearls = memo(function SilverPearls({
 });
 
 /**
- * Shape-Aware Satin Fondant Ribbon hugging the outer walls
+ * Plain Smooth Satin Fondant Ribbon (Continuous flat silk fabric texture, zero circles)
  */
 const FondantRibbon = memo(function FondantRibbon({
   shape = "Round",
   tierY = 0.5,
 }) {
-  const beads = useMemo(() => {
-    const list = [];
-    if (shape === "Square") {
-      const half = 1.685;
-      const count = 48;
-      for (let i = 0; i < count; i++) {
-        const side = Math.floor(i / 12);
-        const t = ((i % 12) / 12) * 2 - 1;
-        const coord = t * (half - 0.1);
-        if (side === 0) list.push([coord, tierY, half]);
-        else if (side === 1) list.push([half, tierY, coord]);
-        else if (side === 2) list.push([coord, tierY, -half]);
-        else list.push([-half, tierY, coord]);
-      }
-    } else if (shape === "Heart") {
-      const scale = 1.95 * 1.04;
-      const count = 48;
-      for (let i = 0; i < count; i++) {
-        const t = (i / count) * Math.PI * 2;
-        const x = (16 * Math.pow(Math.sin(t), 3) / 16) * scale;
-        const y = ((13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t) + 2.5) / 16) * scale;
-        list.push([x, tierY, -y]);
-      }
-    } else {
-      const r = 2.065;
-      const count = 48;
-      for (let i = 0; i < count; i++) {
-        const a = (i / count) * Math.PI * 2;
-        list.push([Math.cos(a) * r, tierY, Math.sin(a) * r]);
-      }
-    }
-    return list;
-  }, [shape, tierY]);
+  const ribbonMaterial = useMemo(() => {
+    return new THREE.MeshStandardMaterial({
+      color: "#FFFDF8",
+      roughness: 0.22,
+      metalness: 0.04,
+      side: THREE.DoubleSide,
+    });
+  }, []);
 
+  const squareRibbonGeom = useMemo(() => {
+    const radius = 0.45;
+    const outer = 1.685;
+    const inner = 1.662;
+
+    const s = new THREE.Shape();
+    s.moveTo(-outer + radius, -outer);
+    s.lineTo(outer - radius, -outer);
+    s.absarc(outer - radius, -outer + radius, radius, -Math.PI / 2, 0, false);
+    s.lineTo(outer, outer - radius);
+    s.absarc(outer - radius, outer - radius, radius, 0, Math.PI / 2, false);
+    s.lineTo(-outer + radius, outer);
+    s.absarc(-outer + radius, outer - radius, radius, Math.PI / 2, Math.PI, false);
+    s.lineTo(-outer, -outer + radius);
+    s.absarc(-outer + radius, -outer + radius, radius, Math.PI, Math.PI * 1.5, false);
+
+    const hole = new THREE.Path();
+    hole.moveTo(-inner + radius, -inner);
+    hole.lineTo(inner - radius, -inner);
+    hole.absarc(inner - radius, -inner + radius, radius, -Math.PI / 2, 0, false);
+    hole.lineTo(inner, inner - radius);
+    hole.absarc(inner - radius, inner - radius, radius, 0, Math.PI / 2, false);
+    hole.lineTo(-inner + radius, inner);
+    hole.absarc(-inner + radius, inner - radius, radius, Math.PI / 2, Math.PI, false);
+    hole.lineTo(-inner, -inner + radius);
+    hole.absarc(-inner + radius, -inner + radius, radius, Math.PI, Math.PI * 1.5, false);
+    s.holes.push(hole);
+
+    const ext = new THREE.ExtrudeGeometry(s, {
+      depth: 0.16,
+      bevelEnabled: false,
+    });
+    ext.center();
+    return ext;
+  }, []);
+
+  const heartRibbonGeom = useMemo(() => {
+    const yCenter = -2.53847;
+    const scale = 1.95;
+    // Offset along true normal sits comfortably outside the cake vertical wall
+    const offset = 0.04;
+    const ribbonHeight = 0.14;
+    const steps = 140;
+
+    const positions = [];
+    const normals = [];
+    const uvs = [];
+    const indices = [];
+
+    for (let i = 0; i <= steps; i++) {
+      const t = (i / steps) * Math.PI * 2;
+      const sinT = Math.sin(t);
+      const cosT = Math.cos(t);
+      const x = Math.pow(sinT, 3) * scale;
+      const rawY =
+        13 * cosT -
+        5 * Math.cos(2 * t) -
+        2 * Math.cos(3 * t) -
+        Math.cos(4 * t);
+      const z = -((rawY - yCenter) / 16) * scale;
+
+      const dx = 3 * sinT * sinT * cosT * scale;
+      const dRawY =
+        -13 * sinT +
+        10 * Math.sin(2 * t) +
+        6 * Math.sin(3 * t) +
+        4 * Math.sin(4 * t);
+      const dz = -(dRawY / 16) * scale;
+      let nx = dz;
+      let nz = -dx;
+      const len = Math.hypot(nx, nz);
+      if (len > 0.0001) {
+        nx /= len;
+        nz /= len;
+      }
+
+      const px = x + nx * offset;
+      const pz = z + nz * offset;
+
+      // Top vertex
+      positions.push(px, ribbonHeight / 2, pz);
+      normals.push(nx, 0, nz);
+      uvs.push(i / steps, 1);
+
+      // Bottom vertex
+      positions.push(px, -ribbonHeight / 2, pz);
+      normals.push(nx, 0, nz);
+      uvs.push(i / steps, 0);
+    }
+
+    for (let i = 0; i < steps; i++) {
+      const top1 = i * 2;
+      const bot1 = i * 2 + 1;
+      const top2 = (i + 1) * 2;
+      const bot2 = (i + 1) * 2 + 1;
+
+      indices.push(top1, bot1, top2);
+      indices.push(top2, bot1, bot2);
+    }
+
+    const geom = new THREE.BufferGeometry();
+    geom.setAttribute(
+      "position",
+      new THREE.Float32BufferAttribute(positions, 3)
+    );
+    geom.setAttribute("normal", new THREE.Float32BufferAttribute(normals, 3));
+    geom.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2));
+    geom.setIndex(indices);
+    return geom;
+  }, []);
+
+  if (shape === "Square") {
+    return (
+      <mesh
+        geometry={squareRibbonGeom}
+        position={[0, tierY, 0]}
+        rotation={[-Math.PI / 2, 0, 0]}
+        material={ribbonMaterial}
+        castShadow
+        receiveShadow
+      />
+    );
+  }
+
+  if (shape === "Heart") {
+    return (
+      <mesh
+        geometry={heartRibbonGeom}
+        position={[0, tierY, 0]}
+        material={ribbonMaterial}
+        castShadow
+        receiveShadow
+      />
+    );
+  }
+
+  // Round
   return (
-    <group>
-      {beads.map((pos, idx) => (
-        <mesh key={idx} position={pos}>
-          <sphereGeometry args={[0.035, 10, 8]} />
-          <meshStandardMaterial
-            color="#FFFBF2"
-            roughness={0.25}
-            metalness={0.05}
-          />
-        </mesh>
-      ))}
-    </group>
+    <mesh position={[0, tierY, 0]} material={ribbonMaterial} castShadow receiveShadow>
+      <cylinderGeometry args={[2.045, 2.045, 0.16, 64, 1, true]} />
+    </mesh>
   );
 });
 
@@ -484,7 +642,8 @@ export const ActiveDecorations = memo(function ActiveDecorations({
   const hasSprinkles = decorations.includes("sprinkles");
   const hasSugarRoses = decorations.includes("sugar_roses");
   const hasGoldLeaf = decorations.includes("gold_leaf");
-  const hasFondantDrape = decorations.includes("white_fondant_drape");
+  const hasFondantDrape =
+    decorations.includes("white_fondant_drape") && shape !== "Heart";
   const hasSilverPearls = decorations.includes("silver_pearls");
 
   return (
