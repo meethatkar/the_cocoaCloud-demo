@@ -77,11 +77,23 @@ const Candles = memo(function Candles({ topTierY = 2.1 }) {
 /**
  * Shape-Aware Rainbow Sprinkles distributed evenly across top tier
  */
-const Sprinkles = memo(function Sprinkles({ topTierY = 2.1, shape = "Round", topRadius = 0.85 }) {
+const Sprinkles = memo(function Sprinkles({
+  topTierY = 2.1,
+  shape = "Round",
+  topRadius = 0.85,
+}) {
   const sprinkleData = useMemo(() => {
     const items = [];
-    const colors = ["#FF69B4", "#4FC3F7", "#FFD54F", "#81C784", "#BA68C8", "#FFFFFF", "#4A2E18"];
-    const count = 75;
+    const colors = [
+      "#FF3366",
+      "#00D2FF",
+      "#FFD700",
+      "#00E676",
+      "#D500F9",
+      "#FF9100",
+      "#FFFFFF",
+    ];
+    const count = 85;
 
     for (let i = 0; i < count; i++) {
       let x = 0;
@@ -89,13 +101,13 @@ const Sprinkles = memo(function Sprinkles({ topTierY = 2.1, shape = "Round", top
 
       if (shape === "Square") {
         // Uniform distribution over square top
-        const half = topRadius * 0.9;
+        const half = topRadius * 0.88;
         x = (Math.random() * 2 - 1) * half;
         z = (Math.random() * 2 - 1) * half;
       } else if (shape === "Heart") {
         // Star-convex uniform sampling strictly inside the heart top surface
         const t = Math.random() * Math.PI * 2;
-        const u = Math.sqrt(Math.random()) * 0.88;
+        const u = Math.sqrt(Math.random()) * 0.86;
         const sinT = Math.sin(t);
         const cosT = Math.cos(t);
         const hx = Math.pow(sinT, 3) * topRadius;
@@ -115,25 +127,34 @@ const Sprinkles = memo(function Sprinkles({ topTierY = 2.1, shape = "Round", top
         z = Math.sin(theta) * r;
       }
 
-      const rotY = Math.random() * Math.PI;
-      const rotZ = (Math.random() - 0.5) * 0.4;
+      // Lay flat on frosting with natural yaw & subtle tilt
+      const rotX = Math.PI / 2 + (Math.random() - 0.5) * 0.25;
+      const rotY = Math.random() * Math.PI * 2;
+      const rotZ = (Math.random() - 0.5) * 0.25;
       const color = colors[Math.floor(Math.random() * colors.length)];
-      items.push({ x, z, rotY, rotZ, color });
+      items.push({ x, z, rotX, rotY, rotZ, color });
     }
     return items;
-  }, [topTierY, shape, topRadius]);
+  }, [shape, topRadius]);
+
+  // Lift sprinkles up on Square and Heart to sit proudly above the bevel
+  const yOffset = shape === "Round" ? 0.025 : 0.065;
 
   return (
-    <group position={[0, topTierY + 0.02, 0]}>
+    <group position={[0, topTierY + yOffset, 0]}>
       {sprinkleData.map((item, i) => (
         <mesh
           key={i}
-          position={[item.x, 0, item.z]}
-          rotation={[0, item.rotY, item.rotZ]}
+          position={[item.x, 0.012, item.z]}
+          rotation={[item.rotX, item.rotY, item.rotZ]}
           castShadow
         >
-          <cylinderGeometry args={[0.015, 0.015, 0.09, 8]} />
-          <meshStandardMaterial color={item.color} roughness={0.3} />
+          <cylinderGeometry args={[0.022, 0.022, 0.11, 8]} />
+          <meshStandardMaterial
+            color={item.color}
+            roughness={0.25}
+            metalness={0.05}
+          />
         </mesh>
       ))}
     </group>
