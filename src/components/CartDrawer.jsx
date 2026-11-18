@@ -43,26 +43,26 @@ export function CartDrawer() {
       />
 
       <div className="fixed inset-y-0 right-0 max-w-full flex pl-10">
-        <div className="w-screen max-w-md bg-[#FAF6F0] border-l border-[#C5A059]/40 shadow-2xl flex flex-col">
+        <div className="w-screen max-w-md 2xl:max-w-xl bg-[#FAF6F0] border-l border-[#C5A059]/40 shadow-2xl flex flex-col">
           {/* Header */}
-          <div className="p-6 border-b border-[#C5A059]/25 flex items-center justify-between bg-[#F1E8DC]">
-            <div className="flex items-center gap-2">
-              <ShoppingBag className="w-5 h-5 text-[#C86D51]" />
-              <h3 className="text-lg font-bold text-[#2C1E18] font-serif-editorial">
+          <div className="p-6 2xl:p-8 border-b border-[#C5A059]/25 flex items-center justify-between bg-[#F1E8DC]">
+            <div className="flex items-center gap-2 2xl:gap-3">
+              <ShoppingBag className="w-5 h-5 2xl:w-6 2xl:h-6 text-[#C86D51]" />
+              <h3 className="text-lg 2xl:text-2xl font-bold text-[#2C1E18] font-serif-editorial">
                 Your Tasting Boîte ({cart.length})
               </h3>
             </div>
             <button
               type="button"
               onClick={() => setIsCartOpen(false)}
-              className="p-2 rounded-full text-[#6B574F] hover:text-[#2C1E18] hover:bg-black/5 transition-all"
+              className="p-2 2xl:p-2.5 rounded-full text-[#6B574F] hover:text-[#2C1E18] hover:bg-black/5 transition-all"
             >
-              <X className="w-5 h-5" />
+              <X className="w-5 h-5 2xl:w-6 2xl:h-6" />
             </button>
           </div>
 
           {/* Body */}
-          <div className="flex-1 overflow-y-auto p-6 space-y-6">
+          <div className="flex-1 overflow-y-auto p-6 2xl:p-8 space-y-6 2xl:space-y-8">
             {orderPlaced ? (
               <div className="py-12 text-center space-y-4">
                 <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center mx-auto border border-emerald-300">

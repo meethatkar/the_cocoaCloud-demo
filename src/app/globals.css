@@ -30,6 +30,14 @@
   }
 }
 
+/* 1900px Wide Screen Atelier Layout Utilities */
+.site-container {
+  width: 100%;
+  max-width: 1900px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
 /* Custom Scrollbar in Parisian Terracotta & Espresso */
 ::-webkit-scrollbar {
   width: 6px;

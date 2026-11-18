@@ -2,6 +2,7 @@
 
 import React, { Suspense, memo } from "react";
 import { Canvas } from "@react-three/fiber";
+import * as THREE from "three";
 import { CakeScene } from "./CakeScene";
 import { useCanvasConfig } from "@/hooks/useCakeConfig";
 import { RotateCw, Sparkles } from "lucide-react";
@@ -34,6 +35,8 @@ function CakeCanvasComponent() {
           antialias: true,
           alpha: true,
           powerPreference: "high-performance",
+          toneMapping: THREE.ACESFilmicToneMapping,
+          toneMappingExposure: 1.05,
         }}
         dpr={[1, 2]}
       >
