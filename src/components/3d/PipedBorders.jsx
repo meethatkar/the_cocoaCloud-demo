@@ -4,7 +4,7 @@ import React, { memo, useMemo } from "react";
 import * as THREE from "three";
 
 /**
- * Piped French Shell / Pearl Border along tier rims
+ * Piped French Shell / Pearl Border along circular tier rims
  */
 export const PipedBorderRing = memo(function PipedBorderRing({
   radius = 2.0,
@@ -34,8 +34,32 @@ export const PipedBorderRing = memo(function PipedBorderRing({
           material={material}
           castShadow
         >
-          {/* Star-tip sculpted shell shape */}
           <sphereGeometry args={[beadRadius, 12, 10]} />
+        </mesh>
+      ))}
+    </group>
+  );
+});
+
+/**
+ * Piped Border along arbitrary 2D Point Paths (Rounded Square or Heart)
+ */
+export const PipedPathBorder = memo(function PipedPathBorder({
+  points = [],
+  y = 0.0,
+  beadRadius = 0.065,
+  material,
+}) {
+  return (
+    <group position={[0, y, 0]}>
+      {points.map((p, i) => (
+        <mesh
+          key={i}
+          position={[p.x, 0, p.z]}
+          material={material}
+          castShadow
+        >
+          <sphereGeometry args={[beadRadius, 10, 8]} />
         </mesh>
       ))}
     </group>
@@ -49,8 +73,8 @@ export const FrenchMacaron = memo(function FrenchMacaron({
   position = [0, 0, 0],
   rotation = [0, 0, 0],
   scale = 1.0,
-  shellColor = "#E8C5B0", // Soft rose / champagne macaron
-  fillingColor = "#2C1E18", // Valrhona ganache
+  shellColor = "#E8C5B0",
+  fillingColor = "#2C1E18",
 }) {
   return (
     <group position={position} rotation={rotation} scale={scale}>
@@ -101,7 +125,6 @@ export const SculptedDripRing = memo(function SculptedDripRing({
       const x = Math.cos(angle) * (radius + 0.015);
       const z = Math.sin(angle) * (radius + 0.015);
 
-      // Procedural varied drip length using sine harmonics
       const lengthFactor =
         0.18 +
         Math.abs(Math.sin(i * 1.7)) * 0.22 +
@@ -120,15 +143,9 @@ export const SculptedDripRing = memo(function SculptedDripRing({
 
   return (
     <group position={[0, y, 0]}>
-      {/* Top smooth collar rim */}
-      <mesh material={material} position={[0, 0.02, 0]}>
-        <torusGeometry args={[radius, 0.055, 16, 64]} />
-      </mesh>
-
       {/* Individual cascading drip strands and droplet bulbs */}
       {drips.map((d, idx) => (
         <group key={idx} position={[d.x, 0, d.z]}>
-          {/* Drip strand */}
           <mesh
             position={[0, -d.length / 2, 0]}
             material={material}
@@ -137,7 +154,6 @@ export const SculptedDripRing = memo(function SculptedDripRing({
             <cylinderGeometry args={[0.028, 0.038, d.length, 12]} />
           </mesh>
 
-          {/* Heavy droplet bulb at the bottom of the drip */}
           <mesh
             position={[0, -d.length, 0]}
             material={material}
@@ -150,4 +166,3 @@ export const SculptedDripRing = memo(function SculptedDripRing({
     </group>
   );
 });
-

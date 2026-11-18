@@ -7,11 +7,12 @@ import * as THREE from "three";
 import { ActiveDecorations } from "./Decorations";
 import { ButtercreamShader } from "./shaders/buttercreamShader";
 import { DripShader } from "./shaders/dripShader";
-import { PipedBorderRing, SculptedDripRing, FrenchMacaron } from "./PipedBorders";
+import { PipedBorderRing, PipedPathBorder, SculptedDripRing, FrenchMacaron } from "./PipedBorders";
 
 /**
  * Enhanced Photorealistic 3D Cake with Custom GLSL Shaders,
- * Artisanal Piped Borders, Sculpted Ganache Drips & French Macarons.
+ * Centered Beveled Geometries (Round, Square, Heart),
+ * and Multi-Shape Piped Borders & Decorations.
  */
 function ProceduralCakeComponent({ config }) {
   const {
@@ -27,7 +28,7 @@ function ProceduralCakeComponent({ config }) {
   const tier2GroupRef = useRef();
   const tier3GroupRef = useRef();
 
-  // Custom GLSL Buttercream Shader Material with Subsurface Scattering & Spatula Noise
+  // Custom GLSL Buttercream Shader Material with Subsurface Scattering
   const buttercreamMaterial = useMemo(() => {
     return new THREE.ShaderMaterial({
       uniforms: {
@@ -66,17 +67,180 @@ function ProceduralCakeComponent({ config }) {
     });
   }, [dripColor]);
 
-  // Cream border piping material (cloned from buttercream with slightly lighter tone)
+  // Cream border piping material
   const pipedBorderMaterial = useMemo(() => {
-    const mat = new THREE.MeshStandardMaterial({
+    return new THREE.MeshStandardMaterial({
       color: new THREE.Color(flavorColor).lerp(new THREE.Color("#FFFFFF"), 0.15),
       roughness: 0.35,
       metalness: 0.02,
     });
-    return mat;
   }, [flavorColor]);
 
-  // Animated tier scale transitions & shader uniforms time update
+  // Dimensions
+  const t1Height = 0.95;
+  const t2Height = 0.85;
+  const t3Height = 0.75;
+
+  const t1Y = t1Height / 2;
+  const t2Y = t1Height + t2Height / 2;
+  const t3Y = t1Height + t2Height + t3Height / 2;
+
+  const topTierY =
+    tiers === 1
+      ? t1Height
+      : tiers === 2
+      ? t1Height + t2Height
+      : t1Height + t2Height + t3Height;
+  const topRadius = tiers === 1 ? 2.0 : tiers === 2 ? 1.4 : 0.85;
+
+  // -------------------------------------------------------------
+  // 1. MATHEMATICALLY CENTERED HEART GEOMETRIES (Tiers 1, 2, 3)
+  // -------------------------------------------------------------
+  const { heartGeoms, heartPerimeterPoints } = useMemo(() => {
+    const makeHeartShapeAndPoints = (scale, count = 48) => {
+      const shape = new THREE.Shape();
+      const points = [];
+      const steps = 100;
+
+      for (let i = 0; i <= steps; i++) {
+        const t = (i / steps) * Math.PI * 2;
+        const x = 16 * Math.pow(Math.sin(t), 3);
+        const y =
+          13 * Math.cos(t) -
+          5 * Math.cos(2 * t) -
+          2 * Math.cos(3 * t) -
+          Math.cos(4 * t);
+
+        const px = (x / 16) * scale;
+        const py = ((y + 2.5) / 16) * scale;
+
+        if (i === 0) shape.moveTo(px, py);
+        else shape.lineTo(px, py);
+      }
+
+      // Sample evenly for perimeter piped pearls
+      for (let i = 0; i < count; i++) {
+        const t = (i / count) * Math.PI * 2;
+        const x = 16 * Math.pow(Math.sin(t), 3);
+        const y =
+          13 * Math.cos(t) -
+          5 * Math.cos(2 * t) -
+          2 * Math.cos(3 * t) -
+          Math.cos(4 * t);
+        // Note: Extrude geometry rotated by [-Math.PI / 2, 0, 0] maps Y to -Z
+        const px = (x / 16) * scale;
+        const pz = -((y + 2.5) / 16) * scale;
+        points.push({ x: px, z: pz });
+      }
+
+      return { shape, points };
+    };
+
+    const h1 = makeHeartShapeAndPoints(1.95, 48);
+    const h2 = makeHeartShapeAndPoints(1.35, 36);
+    const h3 = makeHeartShapeAndPoints(0.85, 24);
+
+    const ext1 = new THREE.ExtrudeGeometry(h1.shape, {
+      depth: t1Height,
+      bevelEnabled: true,
+      bevelSegments: 6,
+      bevelSize: 0.06,
+      bevelThickness: 0.06,
+    });
+    ext1.center(); // Center bounding box to (0,0,0)
+
+    const ext2 = new THREE.ExtrudeGeometry(h2.shape, {
+      depth: t2Height,
+      bevelEnabled: true,
+      bevelSegments: 6,
+      bevelSize: 0.05,
+      bevelThickness: 0.05,
+    });
+    ext2.center();
+
+    const ext3 = new THREE.ExtrudeGeometry(h3.shape, {
+      depth: t3Height,
+      bevelEnabled: true,
+      bevelSegments: 6,
+      bevelSize: 0.04,
+      bevelThickness: 0.04,
+    });
+    ext3.center();
+
+    return {
+      heartGeoms: { t1: ext1, t2: ext2, t3: ext3 },
+      heartPerimeterPoints: { t1: h1.points, t2: h2.points, t3: h3.points },
+    };
+  }, [t1Height, t2Height, t3Height]);
+
+  // -------------------------------------------------------------
+  // 2. ARCHITECTURAL ROUNDED SQUARE GEOMETRIES (Tiers 1, 2, 3)
+  // -------------------------------------------------------------
+  const { squareGeoms, squarePerimeterPoints } = useMemo(() => {
+    const makeRoundedSquare = (size, radius, count = 48) => {
+      const shape = new THREE.Shape();
+      const h = size / 2;
+      shape.moveTo(-h + radius, -h);
+      shape.lineTo(h - radius, -h);
+      shape.absarc(h - radius, -h + radius, radius, -Math.PI / 2, 0, false);
+      shape.lineTo(h, h - radius);
+      shape.absarc(h - radius, h - radius, radius, 0, Math.PI / 2, false);
+      shape.lineTo(-h + radius, h);
+      shape.absarc(-h + radius, h - radius, radius, Math.PI / 2, Math.PI, false);
+      shape.lineTo(-h, -h + radius);
+      shape.absarc(-h + radius, -h + radius, radius, Math.PI, Math.PI * 1.5, false);
+
+      // Sample perimeter points for piping
+      const points = [];
+      const perimeter = (size - 2 * radius) * 4 + 2 * Math.PI * radius;
+      for (let i = 0; i < count; i++) {
+        const u = i / count;
+        const pt = shape.getPointAt(u);
+        // Note: Extrude geometry rotated by [-Math.PI / 2, 0, 0] maps Y to -Z
+        points.push({ x: pt.x, z: -pt.y });
+      }
+
+      return { shape, points };
+    };
+
+    const s1 = makeRoundedSquare(3.2, 0.45, 48);
+    const s2 = makeRoundedSquare(2.25, 0.35, 36);
+    const s3 = makeRoundedSquare(1.35, 0.25, 24);
+
+    const ext1 = new THREE.ExtrudeGeometry(s1.shape, {
+      depth: t1Height,
+      bevelEnabled: true,
+      bevelSegments: 6,
+      bevelSize: 0.06,
+      bevelThickness: 0.06,
+    });
+    ext1.center();
+
+    const ext2 = new THREE.ExtrudeGeometry(s2.shape, {
+      depth: t2Height,
+      bevelEnabled: true,
+      bevelSegments: 6,
+      bevelSize: 0.05,
+      bevelThickness: 0.05,
+    });
+    ext2.center();
+
+    const ext3 = new THREE.ExtrudeGeometry(s3.shape, {
+      depth: t3Height,
+      bevelEnabled: true,
+      bevelSegments: 6,
+      bevelSize: 0.04,
+      bevelThickness: 0.04,
+    });
+    ext3.center();
+
+    return {
+      squareGeoms: { t1: ext1, t2: ext2, t3: ext3 },
+      squarePerimeterPoints: { t1: s1.points, t2: s2.points, t3: s3.points },
+    };
+  }, [t1Height, t2Height, t3Height]);
+
+  // Smooth animation and shader uniforms clock
   useFrame(({ clock }, delta) => {
     const time = clock.getElapsedTime();
     if (buttercreamMaterial && buttercreamMaterial.uniforms) {
@@ -134,105 +298,71 @@ function ProceduralCakeComponent({ config }) {
     }
   });
 
-  // Heart 2D Shape generator
-  const heartShape = useMemo(() => {
-    const shape = new THREE.Shape();
-    const x = 0, y = 0;
-    shape.moveTo(x + 0.25, y + 0.25);
-    shape.bezierCurveTo(x + 0.25, y + 0.25, x + 0.2, y, x, y);
-    shape.bezierCurveTo(x - 0.35, y, x - 0.35, y + 0.35, x - 0.35, y + 0.35);
-    shape.bezierCurveTo(x - 0.35, y + 0.55, x - 0.15, y + 0.77, x + 0.25, y + 1.0);
-    shape.bezierCurveTo(x + 0.65, y + 0.77, x + 0.85, y + 0.55, x + 0.85, y + 0.35);
-    shape.bezierCurveTo(x + 0.85, y + 0.35, x + 0.85, y, x + 0.5, y);
-    shape.bezierCurveTo(x + 0.35, y, x + 0.25, y + 0.25, x + 0.25, y + 0.25);
-    return shape;
-  }, []);
-
-  // Heart Extrude Geometries for 3 tiers
-  const heartExtrudeGeometries = useMemo(() => {
-    const extrudeSettings1 = { depth: 0.9, bevelEnabled: true, bevelSegments: 6, steps: 2, bevelSize: 0.06, bevelThickness: 0.06 };
-    const extrudeSettings2 = { depth: 0.85, bevelEnabled: true, bevelSegments: 6, steps: 2, bevelSize: 0.05, bevelThickness: 0.05 };
-    const extrudeSettings3 = { depth: 0.8, bevelEnabled: true, bevelSegments: 6, steps: 2, bevelSize: 0.04, bevelThickness: 0.04 };
-    return {
-      t1: new THREE.ExtrudeGeometry(heartShape, extrudeSettings1),
-      t2: new THREE.ExtrudeGeometry(heartShape, extrudeSettings2),
-      t3: new THREE.ExtrudeGeometry(heartShape, extrudeSettings3),
-    };
-  }, [heartShape]);
-
-  // Dimensions
-  const t1Height = 0.95;
-  const t2Height = 0.85;
-  const t3Height = 0.75;
-
-  const t1Y = t1Height / 2;
-  const t2Y = t1Height + t2Height / 2;
-  const t3Y = t1Height + t2Height + t3Height / 2;
-
-  const topTierY = tiers === 1 ? t1Height : tiers === 2 ? t1Height + t2Height : t1Height + t2Height + t3Height;
-  const topRadius = tiers === 1 ? 2.0 : tiers === 2 ? 1.4 : 0.85;
+  // Plaque Z offset based on shape
+  const plaqueZ = shape === "Square" ? 1.68 : shape === "Heart" ? 1.72 : 2.03;
 
   return (
     <group position={[0, -0.15, 0]}>
       {/* ================= TIER 1 (BASE) ================= */}
       <group name="Tier_1" position={[0, 0, 0]}>
+        {/* ROUND TIER 1 */}
         {shape === "Round" && (
           <>
             <mesh position={[0, t1Y, 0]} castShadow receiveShadow material={buttercreamMaterial}>
               <cylinderGeometry args={[2.0, 2.0, t1Height, 64]} />
             </mesh>
-            {/* Artisanal Piped Pearl Borders at Base and Rim */}
             <PipedBorderRing radius={2.02} y={0.03} beadCount={52} beadRadius={0.07} material={pipedBorderMaterial} />
             <PipedBorderRing radius={2.0} y={t1Height} beadCount={48} beadRadius={0.065} material={pipedBorderMaterial} />
+            {dripColor && dripShaderMaterial && (
+              <SculptedDripRing radius={2.01} y={t1Height} dripCount={22} material={dripShaderMaterial} />
+            )}
           </>
         )}
 
+        {/* SQUARE TIER 1 (Beveled & Centered) */}
         {shape === "Square" && (
-          <mesh position={[0, t1Y, 0]} castShadow receiveShadow material={buttercreamMaterial}>
-            <boxGeometry args={[3.2, t1Height, 3.2]} />
-          </mesh>
+          <>
+            <mesh
+              geometry={squareGeoms.t1}
+              position={[0, t1Y, 0]}
+              rotation={[-Math.PI / 2, 0, 0]}
+              castShadow
+              receiveShadow
+              material={buttercreamMaterial}
+            />
+            <PipedPathBorder points={squarePerimeterPoints.t1} y={0.03} beadRadius={0.068} material={pipedBorderMaterial} />
+            <PipedPathBorder points={squarePerimeterPoints.t1} y={t1Height} beadRadius={0.065} material={pipedBorderMaterial} />
+          </>
         )}
 
+        {/* HEART TIER 1 (Mathematically Centered & Beveled) */}
         {shape === "Heart" && (
-          <mesh
-            geometry={heartExtrudeGeometries.t1}
-            position={[-0.45, 0.02, 0.75]}
-            rotation={[-Math.PI / 2, 0, Math.PI]}
-            scale={[3.2, 3.2, 1]}
-            castShadow
-            receiveShadow
-            material={buttercreamMaterial}
-          />
-        )}
-
-        {/* Sculpted Undulating Ganache Drip for Tier 1 */}
-        {dripColor && dripShaderMaterial && shape === "Round" && (
-          <SculptedDripRing radius={2.01} y={t1Height} dripCount={22} material={dripShaderMaterial} />
+          <>
+            <mesh
+              geometry={heartGeoms.t1}
+              position={[0, t1Y, 0]}
+              rotation={[-Math.PI / 2, 0, 0]}
+              castShadow
+              receiveShadow
+              material={buttercreamMaterial}
+            />
+            <PipedPathBorder points={heartPerimeterPoints.t1} y={0.03} beadRadius={0.068} material={pipedBorderMaterial} />
+            <PipedPathBorder points={heartPerimeterPoints.t1} y={t1Height} beadRadius={0.065} material={pipedBorderMaterial} />
+          </>
         )}
 
         {/* Front Calligraphy Inscription Plaque */}
-        <group position={[0, t1Y, shape === "Square" ? 1.63 : 2.03]}>
-          {/* Burnished Gold plaque frame */}
+        <group position={[0, t1Y, plaqueZ]}>
           <mesh castShadow receiveShadow>
             <boxGeometry args={[1.5, 0.44, 0.04]} />
-            <meshStandardMaterial
-              color="#2C1E18"
-              roughness={0.25}
-              metalness={0.2}
-            />
+            <meshStandardMaterial color="#2C1E18" roughness={0.25} metalness={0.2} />
           </mesh>
 
-          {/* Burnished gold filigree rim */}
           <mesh position={[0, 0, 0.02]}>
             <boxGeometry args={[1.54, 0.48, 0.015]} />
-            <meshStandardMaterial
-              color="#C5A059"
-              roughness={0.25}
-              metalness={0.85}
-            />
+            <meshStandardMaterial color="#C5A059" roughness={0.25} metalness={0.85} />
           </mesh>
 
-          {/* 3D Calligraphy Inscription */}
           <Text
             position={[0, 0, 0.03]}
             fontSize={0.11}
@@ -248,6 +378,7 @@ function ProceduralCakeComponent({ config }) {
 
       {/* ================= TIER 2 (MIDDLE) ================= */}
       <group ref={tier2GroupRef} name="Tier_2" position={[0, 0, 0]}>
+        {/* ROUND TIER 2 */}
         {shape === "Round" && (
           <>
             <mesh position={[0, t2Y, 0]} castShadow receiveShadow material={buttercreamMaterial}>
@@ -255,35 +386,48 @@ function ProceduralCakeComponent({ config }) {
             </mesh>
             <PipedBorderRing radius={1.41} y={t1Height + 0.02} beadCount={36} beadRadius={0.06} material={pipedBorderMaterial} />
             <PipedBorderRing radius={1.4} y={t1Height + t2Height} beadCount={34} beadRadius={0.055} material={pipedBorderMaterial} />
+            {dripColor && dripShaderMaterial && (
+              <SculptedDripRing radius={1.41} y={t1Height + t2Height} dripCount={16} material={dripShaderMaterial} />
+            )}
           </>
         )}
 
+        {/* SQUARE TIER 2 (Beveled & Centered) */}
         {shape === "Square" && (
-          <mesh position={[0, t2Y, 0]} castShadow receiveShadow material={buttercreamMaterial}>
-            <boxGeometry args={[2.3, t2Height, 2.3]} />
-          </mesh>
+          <>
+            <mesh
+              geometry={squareGeoms.t2}
+              position={[0, t2Y, 0]}
+              rotation={[-Math.PI / 2, 0, 0]}
+              castShadow
+              receiveShadow
+              material={buttercreamMaterial}
+            />
+            <PipedPathBorder points={squarePerimeterPoints.t2} y={t1Height + 0.02} beadRadius={0.058} material={pipedBorderMaterial} />
+            <PipedPathBorder points={squarePerimeterPoints.t2} y={t1Height + t2Height} beadRadius={0.055} material={pipedBorderMaterial} />
+          </>
         )}
 
+        {/* HEART TIER 2 (Mathematically Centered & Beveled) */}
         {shape === "Heart" && (
-          <mesh
-            geometry={heartExtrudeGeometries.t2}
-            position={[-0.32, t1Height + 0.02, 0.55]}
-            rotation={[-Math.PI / 2, 0, Math.PI]}
-            scale={[2.3, 2.3, 1]}
-            castShadow
-            receiveShadow
-            material={buttercreamMaterial}
-          />
-        )}
-
-        {/* Sculpted Undulating Ganache Drip for Tier 2 */}
-        {dripColor && dripShaderMaterial && shape === "Round" && (
-          <SculptedDripRing radius={1.41} y={t1Height + t2Height} dripCount={16} material={dripShaderMaterial} />
+          <>
+            <mesh
+              geometry={heartGeoms.t2}
+              position={[0, t2Y, 0]}
+              rotation={[-Math.PI / 2, 0, 0]}
+              castShadow
+              receiveShadow
+              material={buttercreamMaterial}
+            />
+            <PipedPathBorder points={heartPerimeterPoints.t2} y={t1Height + 0.02} beadRadius={0.058} material={pipedBorderMaterial} />
+            <PipedPathBorder points={heartPerimeterPoints.t2} y={t1Height + t2Height} beadRadius={0.055} material={pipedBorderMaterial} />
+          </>
         )}
       </group>
 
       {/* ================= TIER 3 (TOP) ================= */}
       <group ref={tier3GroupRef} name="Tier_3" position={[0, 0, 0]}>
+        {/* ROUND TIER 3 */}
         {shape === "Round" && (
           <>
             <mesh position={[0, t3Y, 0]} castShadow receiveShadow material={buttercreamMaterial}>
@@ -291,51 +435,62 @@ function ProceduralCakeComponent({ config }) {
             </mesh>
             <PipedBorderRing radius={0.86} y={t1Height + t2Height + 0.02} beadCount={24} beadRadius={0.05} material={pipedBorderMaterial} />
             <PipedBorderRing radius={0.85} y={t1Height + t2Height + t3Height} beadCount={22} beadRadius={0.05} material={pipedBorderMaterial} />
+            {dripColor && dripShaderMaterial && (
+              <SculptedDripRing
+                radius={0.86}
+                y={t1Height + t2Height + t3Height}
+                dripCount={12}
+                material={dripShaderMaterial}
+              />
+            )}
           </>
         )}
 
+        {/* SQUARE TIER 3 (Beveled & Centered) */}
         {shape === "Square" && (
-          <mesh position={[0, t3Y, 0]} castShadow receiveShadow material={buttercreamMaterial}>
-            <boxGeometry args={[1.4, t3Height, 1.4]} />
-          </mesh>
+          <>
+            <mesh
+              geometry={squareGeoms.t3}
+              position={[0, t3Y, 0]}
+              rotation={[-Math.PI / 2, 0, 0]}
+              castShadow
+              receiveShadow
+              material={buttercreamMaterial}
+            />
+            <PipedPathBorder points={squarePerimeterPoints.t3} y={t1Height + t2Height + 0.02} beadRadius={0.048} material={pipedBorderMaterial} />
+            <PipedPathBorder points={squarePerimeterPoints.t3} y={t1Height + t2Height + t3Height} beadRadius={0.048} material={pipedBorderMaterial} />
+          </>
         )}
 
+        {/* HEART TIER 3 (Mathematically Centered & Beveled) */}
         {shape === "Heart" && (
-          <mesh
-            geometry={heartExtrudeGeometries.t3}
-            position={[-0.2, t1Height + t2Height + 0.02, 0.35]}
-            rotation={[-Math.PI / 2, 0, Math.PI]}
-            scale={[1.5, 1.5, 1]}
-            castShadow
-            receiveShadow
-            material={buttercreamMaterial}
-          />
-        )}
-
-        {/* Sculpted Undulating Ganache Drip for Tier 3 */}
-        {dripColor && dripShaderMaterial && shape === "Round" && (
-          <SculptedDripRing
-            radius={0.86}
-            y={t1Height + t2Height + t3Height}
-            dripCount={12}
-            material={dripShaderMaterial}
-          />
+          <>
+            <mesh
+              geometry={heartGeoms.t3}
+              position={[0, t3Y, 0]}
+              rotation={[-Math.PI / 2, 0, 0]}
+              castShadow
+              receiveShadow
+              material={buttercreamMaterial}
+            />
+            <PipedPathBorder points={heartPerimeterPoints.t3} y={t1Height + t2Height + 0.02} beadRadius={0.048} material={pipedBorderMaterial} />
+            <PipedPathBorder points={heartPerimeterPoints.t3} y={t1Height + t2Height + t3Height} beadRadius={0.048} material={pipedBorderMaterial} />
+          </>
         )}
       </group>
 
-      {/* ================= SIGNATURE FRENCH MACARONS ACCENTS ================= */}
+      {/* ================= FRENCH MACARONS (Safely Placed on Platter) ================= */}
       <group>
-        {/* Tier 1 Ledge Macarons */}
         <FrenchMacaron
-          position={[1.65, t1Height + 0.02, 0.4]}
-          rotation={[0.1, 0.6, -0.2]}
+          position={[1.82, 0.04, 0.85]}
+          rotation={[0.1, 0.6, -0.15]}
           shellColor="#E8B4B8"
           fillingColor="#2C1E18"
           scale={0.9}
         />
         <FrenchMacaron
-          position={[-1.6, t1Height + 0.02, -0.45]}
-          rotation={[-0.1, 1.2, 0.25]}
+          position={[-1.8, 0.04, 0.8]}
+          rotation={[-0.1, 1.2, 0.2]}
           shellColor="#C2D5A8"
           fillingColor="#FFFFFF"
           scale={0.85}

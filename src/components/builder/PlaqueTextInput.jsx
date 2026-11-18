@@ -7,17 +7,17 @@ function PlaqueTextInputComponent({ customText, onChange }) {
   const quickSuggestions = [
     "Happy Birthday!",
     "Happy Anniversary",
-    "Mr. & Mrs.",
-    "Bonne Fête",
-    "Pour Toujours",
+    "Congratulations!",
+    "Best Wishes",
+    "Forever & Always",
   ];
 
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <label className="text-xs uppercase tracking-wider text-[#C86D51] font-semibold flex items-center gap-2">
+        <label className="text-xs uppercase tracking-wider text-[#C86D51] font-semibold flex items-center gap-1.5">
           <PenTool className="w-3.5 h-3.5" />
-          <span>Calligraphy Plaque Inscription</span>
+          <span>Name / Message on Cake</span>
         </label>
         <span className="text-[11px] text-[#6B574F] font-mono">
           {(customText || "").length}/28 chars
@@ -30,8 +30,8 @@ function PlaqueTextInputComponent({ customText, onChange }) {
           maxLength={28}
           value={customText || ""}
           onChange={(e) => onChange(e.target.value)}
-          placeholder="e.g. Joyeux Anniversaire Chérie"
-          className="w-full bg-[#FAF6F0] border border-[#C5A059]/40 rounded-2xl px-4 py-3 text-sm text-[#2C1E18] placeholder-[#9E897F] focus:outline-none focus:border-[#C86D51] focus:ring-2 focus:ring-[#C86D51]/30 transition-all font-serif-editorial"
+          placeholder="e.g. Happy Birthday Rahul!"
+          className="w-full bg-[#FAF6F0] border border-[#C5A059]/40 rounded-2xl px-4 py-3 text-sm text-[#2C1E18] placeholder-[#9E897F] focus:outline-none focus:border-[#C86D51] focus:ring-2 focus:ring-[#C86D51]/30 transition-all font-medium"
         />
       </div>
 

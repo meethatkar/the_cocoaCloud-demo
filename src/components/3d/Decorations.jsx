@@ -208,24 +208,21 @@ function GoldLeaf({ tierHeights = [0.6, 1.6, 2.4], baseRadii = [2.0, 1.4, 0.85] 
 }
 
 /**
- * Satin Fondant Drapery Swags
+ * Satin Fondant Drapery Ribbon (Smooth ribbon band, no protruding half-torus loop)
  */
 function FondantDrape({ tierY = 1.15, radius = 1.42 }) {
   return (
-    <group position={[0, tierY, 0]}>
-      {/* 3 graceful swags along tier front and sides */}
-      {[0, Math.PI * 0.65, Math.PI * 1.35].map((angle, i) => (
-        <group key={i} rotation={[0, angle, 0]}>
-          <mesh position={[0, -0.15, radius]} rotation={[0.4, 0, 0]} castShadow>
-            <torusGeometry args={[0.42, 0.04, 16, 32, Math.PI]} />
-            <meshStandardMaterial
-              color="#FFFBF2"
-              roughness={0.3}
-              metalness={0.05}
-            />
-          </mesh>
-        </group>
-      ))}
+    <group position={[0, tierY - 0.1, 0]}>
+      {/* Elegant satin ribbon sash wrapping gently along the tier contour */}
+      <mesh position={[0, 0, 0]} castShadow>
+        <cylinderGeometry args={[radius + 0.02, radius + 0.025, 0.12, 48, 1, true]} />
+        <meshStandardMaterial
+          color="#FFFBF2"
+          roughness={0.25}
+          metalness={0.05}
+          side={THREE.DoubleSide}
+        />
+      </mesh>
     </group>
   );
 }

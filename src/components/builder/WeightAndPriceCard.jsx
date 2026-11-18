@@ -39,12 +39,12 @@ function WeightAndPriceCardComponent({
       {/* Weight Selector */}
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <label className="text-xs uppercase tracking-wider text-[#C86D51] font-semibold flex items-center gap-2">
+          <label className="text-xs uppercase tracking-wider text-[#C86D51] font-semibold flex items-center gap-1.5">
             <Scale className="w-3.5 h-3.5" />
-            <span>Target Scale & Servings</span>
+            <span>Cake Weight & Servings</span>
           </label>
           <span className="text-sm font-bold text-[#2C1E18] font-mono bg-white px-2.5 py-0.5 rounded-lg border border-[#C5A059]/30 shadow-xs">
-            {weight.toFixed(1)} Kg
+            {weight.toFixed(1)} Kg (~{Math.round(weight * 8)} Servings)
           </span>
         </div>
 
@@ -59,8 +59,8 @@ function WeightAndPriceCardComponent({
         />
 
         <div className="flex justify-between text-[10px] text-[#6B574F] font-mono">
-          <span>Min: {weightRange.min} kg (~{Math.round(weightRange.min * 8)} servings)</span>
-          <span>Max: {weightRange.max} kg (~{Math.round(weightRange.max * 8)} servings)</span>
+          <span>Min: {weightRange.min} kg</span>
+          <span>Max: {weightRange.max} kg</span>
         </div>
       </div>
 
@@ -68,7 +68,7 @@ function WeightAndPriceCardComponent({
       <div className="p-4 rounded-2xl bg-[#FAF6F0] border border-[#C5A059]/40 shadow-md flex flex-col sm:flex-row items-center justify-between gap-4">
         <div>
           <div className="text-[10px] uppercase tracking-wider text-[#6B574F] font-semibold">
-            Estimated Investment
+            Total Price
           </div>
           <div className="flex items-baseline gap-1 mt-0.5">
             <span className="text-xs text-[#C86D51] font-bold">INR</span>
@@ -76,7 +76,7 @@ function WeightAndPriceCardComponent({
               ₹{price.toLocaleString("en-IN")}
             </span>
             <span className="text-[11px] text-[#6B574F] ml-1">
-              (incl. Luxury Boîte)
+              (Free Mumbai Delivery)
             </span>
           </div>
         </div>
@@ -86,7 +86,7 @@ function WeightAndPriceCardComponent({
             type="button"
             onClick={onReset}
             className="p-3 rounded-xl border border-[#C5A059]/30 bg-white text-[#6B574F] hover:text-[#2C1E18] hover:border-[#C86D51] transition-all shadow-xs"
-            title="Reset to default atelier configuration"
+            title="Reset to default"
           >
             <RotateCcw className="w-4 h-4" />
           </button>
@@ -104,12 +104,12 @@ function WeightAndPriceCardComponent({
             {isSuccess ? (
               <>
                 <CheckCircle2 className="w-4 h-4" />
-                <span>Added to Box!</span>
+                <span>Added to Cart!</span>
               </>
             ) : (
               <>
                 <ShoppingBag className="w-4 h-4" />
-                <span>Order Custom Cake</span>
+                <span>Add Cake to Cart</span>
               </>
             )}
           </button>

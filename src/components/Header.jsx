@@ -55,7 +55,7 @@ export function Header() {
               Cocoa & Cloud
             </span>
             <span className="block text-[10px] uppercase tracking-[0.2em] text-[#C5A059] -mt-1 font-sans font-medium">
-              Pâtisserie & Atelier • Paris — Mumbai
+              Custom Cakes • Mumbai
             </span>
           </div>
         </button>
@@ -67,21 +67,21 @@ export function Header() {
             onClick={() => scrollTo("builder")}
             className="hover:text-[#C86D51] transition-colors relative py-1 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 hover:after:w-full after:h-[1.5px] after:bg-[#C86D51] after:transition-all"
           >
-            The 3D Atelier
+            Design in 3D
           </button>
           <button
             type="button"
             onClick={() => scrollTo("occasions")}
             className="hover:text-[#C86D51] transition-colors relative py-1 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 hover:after:w-full after:h-[1.5px] after:bg-[#C86D51] after:transition-all"
           >
-            Curated Occasions
+            Occasions
           </button>
           <button
             type="button"
             onClick={() => scrollTo("process")}
             className="hover:text-[#C86D51] transition-colors relative py-1 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 hover:after:w-full after:h-[1.5px] after:bg-[#C86D51] after:transition-all"
           >
-            Our Craft
+            How We Bake
           </button>
           <button
             type="button"
@@ -128,21 +128,21 @@ export function Header() {
             onClick={() => scrollTo("builder")}
             className="block w-full text-left text-sm uppercase tracking-wider font-semibold text-[#2C1E18] py-2 border-b border-[#F1E8DC]"
           >
-            The 3D Atelier
+            Design in 3D
           </button>
           <button
             type="button"
             onClick={() => scrollTo("occasions")}
             className="block w-full text-left text-sm uppercase tracking-wider font-semibold text-[#2C1E18] py-2 border-b border-[#F1E8DC]"
           >
-            Curated Occasions
+            Occasions
           </button>
           <button
             type="button"
             onClick={() => scrollTo("process")}
             className="block w-full text-left text-sm uppercase tracking-wider font-semibold text-[#2C1E18] py-2 border-b border-[#F1E8DC]"
           >
-            Our Craft
+            How We Bake
           </button>
           <button
             type="button"

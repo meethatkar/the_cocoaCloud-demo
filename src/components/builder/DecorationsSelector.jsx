@@ -27,8 +27,8 @@ function DecorationsSelectorComponent({ decorations = [], onToggle }) {
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <label className="text-xs uppercase tracking-wider text-[#C86D51] font-semibold flex items-center gap-2">
-          <span>Artisanal Embellishments & Florals</span>
+        <label className="text-xs uppercase tracking-wider text-[#C86D51] font-semibold flex items-center gap-1.5">
+          <span>Toppings & Decorations</span>
         </label>
         <span className="text-xs text-[#6B574F] font-medium">
           {decorations.length} Selected

@@ -5,17 +5,17 @@ import { Layers } from "lucide-react";
 
 function TierSelectorComponent({ tiers, onChange }) {
   const options = [
-    { value: 1, label: "Single Tier", desc: "Intimate Soirées • 1.0 - 2.5 kg" },
-    { value: 2, label: "Two Tiers", desc: "Milestone Galas • 2.5 - 4.5 kg" },
-    { value: 3, label: "Three Tiers", desc: "Grand Mariage • 4.5 - 8.0 kg" },
+    { value: 1, label: "1 Tier", desc: "Small Party • 1.0 - 2.5 kg" },
+    { value: 2, label: "2 Tiers", desc: "Medium Party • 2.5 - 4.5 kg" },
+    { value: 3, label: "3 Tiers", desc: "Grand Party • 4.5 - 8.0 kg" },
   ];
 
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <label className="text-xs uppercase tracking-wider text-[#C86D51] font-semibold flex items-center gap-2">
+        <label className="text-xs uppercase tracking-wider text-[#C86D51] font-semibold flex items-center gap-1.5">
           <Layers className="w-3.5 h-3.5" />
-          <span>Architectural Tiers</span>
+          <span>Number of Tiers (Layers)</span>
         </label>
         <span className="text-xs text-[#6B574F] font-medium">
           {tiers} {tiers === 1 ? "Tier" : "Tiers"} Selected

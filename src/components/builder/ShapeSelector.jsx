@@ -19,11 +19,11 @@ function ShapeSelectorComponent({ shape, onChange }) {
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <label className="text-xs uppercase tracking-wider text-[#C86D51] font-semibold flex items-center gap-2">
-          <span>Cake Geometry & Silhouette</span>
+        <label className="text-xs uppercase tracking-wider text-[#C86D51] font-semibold flex items-center gap-1.5">
+          <span>Cake Shape</span>
         </label>
-        <span className="text-xs text-[#6B574F] font-serif-editorial italic">
-          {shape} Silhouette
+        <span className="text-xs text-[#6B574F] font-medium">
+          {shape} Cake
         </span>
       </div>
 
