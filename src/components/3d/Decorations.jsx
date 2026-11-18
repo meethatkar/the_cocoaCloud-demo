@@ -49,13 +49,13 @@ function Candles({ topTierY = 2.1, topTierRadius = 0.85 }) {
         const flameRef = idx === 0 ? flame1Ref : idx === 1 ? flame2Ref : flame3Ref;
         return (
           <group key={idx} position={pos}>
-            {/* Candle wax stick (Gold metallic wax) */}
+            {/* Candle wax stick (Burnished Gold wax) */}
             <mesh position={[0, 0.25, 0]} castShadow>
               <cylinderGeometry args={[0.035, 0.035, 0.5, 16]} />
               <meshStandardMaterial
-                color="#D4AF37"
-                roughness={0.3}
-                metalness={0.7}
+                color="#C5A059"
+                roughness={0.25}
+                metalness={0.75}
               />
             </mesh>
 
@@ -196,9 +196,9 @@ function GoldLeaf({ tierHeights = [0.6, 1.6, 2.4], baseRadii = [2.0, 1.4, 0.85] 
         >
           <planeGeometry args={[f.scale, f.scale * 1.2]} />
           <meshStandardMaterial
-            color="#E5C158"
-            metalness={0.92}
-            roughness={0.15}
+            color="#C5A059"
+            metalness={0.9}
+            roughness={0.18}
             side={THREE.DoubleSide}
           />
         </mesh>

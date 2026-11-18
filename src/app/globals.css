@@ -1,66 +1,88 @@
 @import "tailwindcss";
 
 :root {
-  --background: #0f0d0d;
-  --foreground: #f5f2eb;
-  --accent-gold: #d4af37;
-  --accent-gold-light: #f3e5ab;
-  --accent-rose: #d9777f;
-  --card-bg: rgba(26, 22, 22, 0.75);
+  --background: #faf6f0;
+  --foreground: #2c1e18;
+  --surface-champagne: #f1e8dc;
+  --surface-champagne-light: #f7f1e8;
+  --terracotta: #c86d51;
+  --terracotta-hover: #b55e43;
+  --burnished-gold: #c5a059;
+  --burnished-gold-light: #dfc185;
+  --deep-espresso: #2c1e18;
+  --muted-espresso: #6b574f;
 }
 
 @layer base {
   body {
     background-color: var(--background);
     color: var(--foreground);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-family: "Plus Jakarta Sans", "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     overflow-x: hidden;
+    /* Subtle paper grain texture */
+    background-image: radial-gradient(rgba(44, 30, 24, 0.035) 1px, transparent 0);
+    background-size: 24px 24px;
   }
 
-  h1, h2, h3, .font-serif-luxury {
-    font-family: Didot, "Bodoni MT", "Cinzel", "Playfair Display", Georgia, serif;
+  h1, h2, h3, .font-serif-editorial {
+    font-family: "Playfair Display", "Cormorant Garamond", Didot, "Bodoni MT", Georgia, serif;
     letter-spacing: -0.015em;
   }
 }
 
-/* Custom Scrollbar for smooth luxury experience */
+/* Custom Scrollbar in Parisian Terracotta & Espresso */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #151313;
+  background: #f1e8dc;
 }
 ::-webkit-scrollbar-thumb {
-  background: #3a3232;
+  background: #d8c8b6;
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #d4af37;
+  background: #c86d51;
 }
 
-/* Glassmorphism helpers */
-.glass-panel {
-  background: rgba(24, 20, 20, 0.72);
+/* Parisian Arch Frame signature shape */
+.arch-frame {
+  border-radius: 120px 120px 16px 16px;
+}
+
+.arch-pill {
+  border-radius: 9999px 9999px 0 0;
+}
+
+/* Glassmorphism for Parisian Patisserie */
+.glass-patisserie {
+  background: rgba(241, 232, 220, 0.85);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(212, 175, 55, 0.15);
+  border: 1px solid rgba(197, 160, 89, 0.3);
+  box-shadow: 0 10px 30px -10px rgba(44, 30, 24, 0.08);
 }
 
-.glass-panel-glow {
-  background: rgba(28, 22, 22, 0.85);
+.glass-floating-bar {
+  background: rgba(250, 246, 240, 0.88);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(212, 175, 55, 0.35);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5), 0 0 20px 0 rgba(212, 175, 55, 0.08);
+  border: 1px solid rgba(197, 160, 89, 0.4);
+  box-shadow: 0 16px 40px -12px rgba(44, 30, 24, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.6);
 }
 
-.gold-gradient-text {
-  background: linear-gradient(135deg, #FFF0D4 0%, #D4AF37 50%, #AA8010 100%);
+.terracotta-gradient-btn {
+  background: linear-gradient(135deg, #d3795d 0%, #c86d51 50%, #b25b40 100%);
+  color: #ffffff;
+  box-shadow: 0 4px 18px -2px rgba(200, 109, 81, 0.38);
+}
+.terracotta-gradient-btn:hover {
+  background: linear-gradient(135deg, #db8468 0%, #bf6346 50%, #a44f35 100%);
+}
+
+.gold-editorial-text {
+  background: linear-gradient(135deg, #87682f 0%, #c5a059 50%, #997532 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-}
-
-.gold-border-gradient {
-  border-image: linear-gradient(to right, rgba(212, 175, 55, 0.6), rgba(212, 175, 55, 0.1)) 1;
 }

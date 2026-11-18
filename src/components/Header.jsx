@@ -12,7 +12,7 @@ export function Header() {
 
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 40) {
+      if (window.scrollY > 30) {
         setIsScrolled(true);
       } else {
         setIsScrolled(false);
@@ -36,7 +36,7 @@ export function Header() {
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
         isScrolled
-          ? "bg-[#0F0D0D]/90 backdrop-blur-xl border-b border-[#D4AF37]/20 py-3.5 shadow-2xl"
+          ? "bg-[#FAF6F0]/95 backdrop-blur-md border-b border-[#C5A059]/30 py-3 shadow-[0_4px_20px_-4px_rgba(44,30,24,0.08)]"
           : "bg-transparent py-5"
       }`}
     >
@@ -45,52 +45,50 @@ export function Header() {
         <button
           type="button"
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-          className="flex items-center gap-2.5 text-left group"
+          className="flex items-center gap-3 text-left group"
         >
-          <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-[#D4AF37] to-[#FFF0D4] p-0.5 shadow-md shadow-[#D4AF37]/20 group-hover:rotate-12 transition-transform duration-300">
-            <div className="w-full h-full bg-[#141010] rounded-full flex items-center justify-center">
-              <Sparkles className="w-4 h-4 text-[#D4AF37]" />
-            </div>
+          <div className="w-9 h-9 rounded-full bg-[#F1E8DC] border border-[#C5A059]/40 flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform duration-300">
+            <Sparkles className="w-4 h-4 text-[#C86D51]" />
           </div>
           <div>
-            <span className="block text-lg font-bold tracking-wider text-white font-serif-luxury">
-              COCOA & CLOUD
+            <span className="block text-xl font-bold tracking-tight text-[#2C1E18] font-serif-editorial">
+              Cocoa & Cloud
             </span>
-            <span className="block text-[9px] uppercase tracking-[0.25em] text-[#D4AF37] -mt-1 font-sans">
-              Haute Patisserie • Mumbai
+            <span className="block text-[10px] uppercase tracking-[0.2em] text-[#C5A059] -mt-1 font-sans font-medium">
+              Pâtisserie & Atelier • Paris — Mumbai
             </span>
           </div>
         </button>
 
         {/* Desktop Navigation Links */}
-        <nav className="hidden md:flex items-center gap-8 text-xs uppercase tracking-widest font-semibold text-zinc-300">
+        <nav className="hidden md:flex items-center gap-8 text-xs uppercase tracking-widest font-semibold text-[#6B574F]">
           <button
             type="button"
             onClick={() => scrollTo("builder")}
-            className="hover:text-[#D4AF37] transition-colors relative py-1 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 hover:after:w-full after:h-[1px] after:bg-[#D4AF37] after:transition-all"
+            className="hover:text-[#C86D51] transition-colors relative py-1 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 hover:after:w-full after:h-[1.5px] after:bg-[#C86D51] after:transition-all"
           >
-            Build Your Cake
+            The 3D Atelier
           </button>
           <button
             type="button"
             onClick={() => scrollTo("occasions")}
-            className="hover:text-[#D4AF37] transition-colors relative py-1 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 hover:after:w-full after:h-[1px] after:bg-[#D4AF37] after:transition-all"
+            className="hover:text-[#C86D51] transition-colors relative py-1 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 hover:after:w-full after:h-[1.5px] after:bg-[#C86D51] after:transition-all"
           >
-            Occasions
+            Curated Occasions
           </button>
           <button
             type="button"
             onClick={() => scrollTo("process")}
-            className="hover:text-[#D4AF37] transition-colors relative py-1 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 hover:after:w-full after:h-[1px] after:bg-[#D4AF37] after:transition-all"
+            className="hover:text-[#C86D51] transition-colors relative py-1 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 hover:after:w-full after:h-[1.5px] after:bg-[#C86D51] after:transition-all"
           >
-            Our Process
+            Our Craft
           </button>
           <button
             type="button"
             onClick={() => scrollTo("zones")}
-            className="hover:text-[#D4AF37] transition-colors relative py-1 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 hover:after:w-full after:h-[1px] after:bg-[#D4AF37] after:transition-all"
+            className="hover:text-[#C86D51] transition-colors relative py-1 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 hover:after:w-full after:h-[1.5px] after:bg-[#C86D51] after:transition-all"
           >
-            Mumbai Zones
+            Mumbai Delivery
           </button>
         </nav>
 
@@ -99,12 +97,12 @@ export function Header() {
           <button
             type="button"
             onClick={toggleCart}
-            className="relative p-2.5 rounded-full bg-[#1A1616]/80 border border-[#D4AF37]/30 text-[#F3E5AB] hover:text-white hover:border-[#D4AF37] transition-all shadow-md"
+            className="relative p-2.5 rounded-full bg-[#F1E8DC] border border-[#C5A059]/40 text-[#2C1E18] hover:border-[#C86D51] hover:text-[#C86D51] transition-all shadow-sm"
             aria-label="View Cart"
           >
             <ShoppingBag className="w-4 h-4" />
             {cart.length > 0 && (
-              <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-[#D4AF37] text-[#0F0D0D] text-[10px] font-extrabold flex items-center justify-center shadow-md animate-pulse">
+              <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-[#C86D51] text-white text-[10px] font-bold flex items-center justify-center shadow-sm">
                 {cart.length}
               </span>
             )}
@@ -114,7 +112,7 @@ export function Header() {
           <button
             type="button"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden p-2.5 rounded-full bg-white/5 border border-white/10 text-zinc-300"
+            className="md:hidden p-2.5 rounded-full bg-[#F1E8DC] border border-[#C5A059]/30 text-[#2C1E18]"
             aria-label="Toggle menu"
           >
             {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -124,38 +122,37 @@ export function Header() {
 
       {/* Mobile Menu Dropdown */}
       {mobileMenuOpen && (
-        <div className="md:hidden bg-[#141010]/98 backdrop-blur-2xl border-b border-[#D4AF37]/20 px-6 py-6 space-y-4">
+        <div className="md:hidden bg-[#FAF6F0] border-b border-[#C5A059]/30 px-6 py-6 space-y-4 shadow-xl">
           <button
             type="button"
             onClick={() => scrollTo("builder")}
-            className="block w-full text-left text-sm uppercase tracking-wider font-semibold text-zinc-200 py-2 border-b border-white/5"
+            className="block w-full text-left text-sm uppercase tracking-wider font-semibold text-[#2C1E18] py-2 border-b border-[#F1E8DC]"
           >
-            Build Your Cake
+            The 3D Atelier
           </button>
           <button
             type="button"
             onClick={() => scrollTo("occasions")}
-            className="block w-full text-left text-sm uppercase tracking-wider font-semibold text-zinc-200 py-2 border-b border-white/5"
+            className="block w-full text-left text-sm uppercase tracking-wider font-semibold text-[#2C1E18] py-2 border-b border-[#F1E8DC]"
           >
-            Occasions
+            Curated Occasions
           </button>
           <button
             type="button"
             onClick={() => scrollTo("process")}
-            className="block w-full text-left text-sm uppercase tracking-wider font-semibold text-zinc-200 py-2 border-b border-white/5"
+            className="block w-full text-left text-sm uppercase tracking-wider font-semibold text-[#2C1E18] py-2 border-b border-[#F1E8DC]"
           >
-            Our Process
+            Our Craft
           </button>
           <button
             type="button"
             onClick={() => scrollTo("zones")}
-            className="block w-full text-left text-sm uppercase tracking-wider font-semibold text-zinc-200 py-2"
+            className="block w-full text-left text-sm uppercase tracking-wider font-semibold text-[#2C1E18] py-2"
           >
-            Mumbai Delivery Zones
+            Mumbai Delivery
           </button>
         </div>
       )}
     </header>
   );
 }
-

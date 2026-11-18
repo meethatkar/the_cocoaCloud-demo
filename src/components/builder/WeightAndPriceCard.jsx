@@ -23,7 +23,7 @@ function WeightAndPriceCardComponent({
         particleCount: 50,
         spread: 60,
         origin: { y: 0.8 },
-        colors: ["#D4AF37", "#F3E5AB", "#FF69B4", "#FFFFFF"],
+        colors: ["#C86D51", "#C5A059", "#F1E8DC", "#FAF6F0"],
       });
     } catch {
       // safe fallback
@@ -35,15 +35,15 @@ function WeightAndPriceCardComponent({
   };
 
   return (
-    <div className="pt-4 border-t border-[#D4AF37]/20 space-y-4">
+    <div className="pt-4 border-t border-[#C5A059]/25 space-y-4">
       {/* Weight Selector */}
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <label className="text-xs uppercase tracking-wider text-[#D4AF37] font-semibold flex items-center gap-2">
+          <label className="text-xs uppercase tracking-wider text-[#C86D51] font-semibold flex items-center gap-2">
             <Scale className="w-3.5 h-3.5" />
-            <span>Target Weight</span>
+            <span>Target Scale & Servings</span>
           </label>
-          <span className="text-sm font-bold text-white font-mono bg-white/5 px-2.5 py-0.5 rounded-md border border-white/10">
+          <span className="text-sm font-bold text-[#2C1E18] font-mono bg-white px-2.5 py-0.5 rounded-lg border border-[#C5A059]/30 shadow-xs">
             {weight.toFixed(1)} Kg
           </span>
         </div>
@@ -55,28 +55,28 @@ function WeightAndPriceCardComponent({
           step={weightRange.step}
           value={weight}
           onChange={(e) => onWeightChange(parseFloat(e.target.value))}
-          className="w-full accent-[#D4AF37] h-1.5 bg-zinc-800 rounded-lg appearance-none cursor-pointer"
+          className="w-full accent-[#C86D51] h-1.5 bg-[#E4D7C8] rounded-lg appearance-none cursor-pointer"
         />
 
-        <div className="flex justify-between text-[10px] text-zinc-500 font-mono">
-          <span>Min: {weightRange.min} kg</span>
-          <span>Max: {weightRange.max} kg</span>
+        <div className="flex justify-between text-[10px] text-[#6B574F] font-mono">
+          <span>Min: {weightRange.min} kg (~{Math.round(weightRange.min * 8)} servings)</span>
+          <span>Max: {weightRange.max} kg (~{Math.round(weightRange.max * 8)} servings)</span>
         </div>
       </div>
 
       {/* Price Summary and Action Bar */}
-      <div className="p-4 rounded-2xl bg-gradient-to-r from-[#1E1818] via-[#1A1414] to-[#251A18] border border-[#D4AF37]/30 shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div className="p-4 rounded-2xl bg-[#FAF6F0] border border-[#C5A059]/40 shadow-md flex flex-col sm:flex-row items-center justify-between gap-4">
         <div>
-          <div className="text-[11px] uppercase tracking-wider text-zinc-400 font-medium">
+          <div className="text-[10px] uppercase tracking-wider text-[#6B574F] font-semibold">
             Estimated Investment
           </div>
           <div className="flex items-baseline gap-1 mt-0.5">
-            <span className="text-xs text-[#D4AF37] font-semibold">INR</span>
-            <span className="text-3xl font-extrabold text-white tracking-tight font-serif-luxury">
+            <span className="text-xs text-[#C86D51] font-bold">INR</span>
+            <span className="text-3xl font-bold text-[#2C1E18] tracking-tight font-serif-editorial">
               ₹{price.toLocaleString("en-IN")}
             </span>
-            <span className="text-[11px] text-zinc-400 ml-1">
-              (incl. Luxury Box & Delivery)
+            <span className="text-[11px] text-[#6B574F] ml-1">
+              (incl. Luxury Boîte)
             </span>
           </div>
         </div>
@@ -85,8 +85,8 @@ function WeightAndPriceCardComponent({
           <button
             type="button"
             onClick={onReset}
-            className="p-3 rounded-xl border border-white/10 bg-white/5 text-zinc-400 hover:text-white hover:border-white/20 transition-all"
-            title="Reset configuration"
+            className="p-3 rounded-xl border border-[#C5A059]/30 bg-white text-[#6B574F] hover:text-[#2C1E18] hover:border-[#C86D51] transition-all shadow-xs"
+            title="Reset to default atelier configuration"
           >
             <RotateCcw className="w-4 h-4" />
           </button>
@@ -95,10 +95,10 @@ function WeightAndPriceCardComponent({
             type="button"
             onClick={handleAdd}
             disabled={isSuccess}
-            className={`flex-1 sm:flex-initial flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl font-bold text-sm tracking-wide transition-all shadow-lg ${
+            className={`flex-1 sm:flex-initial flex items-center justify-center gap-2 px-6 py-3.5 rounded-full font-semibold text-xs uppercase tracking-wider transition-all shadow-md ${
               isSuccess
-                ? "bg-emerald-600 text-white"
-                : "bg-gradient-to-r from-[#D4AF37] via-[#E5C158] to-[#AA8010] text-[#0F0D0D] hover:brightness-110 active:scale-[0.98]"
+                ? "bg-emerald-700 text-white"
+                : "terracotta-gradient-btn hover:scale-[1.02] active:scale-[0.98]"
             }`}
           >
             {isSuccess ? (
@@ -109,7 +109,7 @@ function WeightAndPriceCardComponent({
             ) : (
               <>
                 <ShoppingBag className="w-4 h-4" />
-                <span>Add to Tasting Box</span>
+                <span>Order Custom Cake</span>
               </>
             )}
           </button>
@@ -120,4 +120,3 @@ function WeightAndPriceCardComponent({
 }
 
 export const WeightAndPriceCard = memo(WeightAndPriceCardComponent);
-

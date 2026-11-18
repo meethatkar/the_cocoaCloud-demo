@@ -174,23 +174,23 @@ function ProceduralCakeComponent({ config }) {
 
         {/* Front Calligraphy Inscription Plaque */}
         <group position={[0, t1Y, shape === "Square" ? 1.63 : 2.03]}>
-          {/* Gold plaque frame */}
+          {/* Burnished Gold plaque frame */}
           <mesh castShadow receiveShadow>
             <boxGeometry args={[1.5, 0.44, 0.04]} />
             <meshStandardMaterial
-              color="#221A15"
+              color="#2C1E18"
               roughness={0.25}
-              metalness={0.4}
+              metalness={0.2}
             />
           </mesh>
 
-          {/* Gold filigree rim */}
+          {/* Burnished gold filigree rim */}
           <mesh position={[0, 0, 0.02]}>
             <boxGeometry args={[1.54, 0.48, 0.015]} />
             <meshStandardMaterial
-              color="#D4AF37"
-              roughness={0.2}
-              metalness={0.9}
+              color="#C5A059"
+              roughness={0.25}
+              metalness={0.85}
             />
           </mesh>
 
@@ -198,7 +198,7 @@ function ProceduralCakeComponent({ config }) {
           <Text
             position={[0, 0, 0.03]}
             fontSize={0.11}
-            color="#F3E5AB"
+            color="#FAF6F0"
             anchorX="center"
             anchorY="middle"
             maxWidth={1.4}

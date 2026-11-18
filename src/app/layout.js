@@ -1,15 +1,15 @@
 import "./globals.css";
 
 export const metadata = {
-  title: "Cocoa & Cloud | Artisanal 3D Custom Cake Studio",
+  title: "Cocoa & Cloud | Parisian Patisserie & 3D Cake Atelier",
   description:
-    "Design and order bespoke luxury cakes in interactive 3D. Handcrafted with premium ingredients, delivered across Mumbai.",
+    "Handcrafted bespoke luxury cakes designed in 3D. Warm Parisian editorial aesthetic with delicate florals, macarons, and artisanal finishes.",
 };
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className="h-full antialiased scroll-smooth">
-      <body className="min-h-full flex flex-col bg-[#0F0D0D] text-[#F5F2EB] selection:bg-[#D4AF37] selection:text-[#0F0D0D]">
+      <body className="min-h-full flex flex-col bg-[#FAF6F0] text-[#2C1E18] selection:bg-[#C86D51] selection:text-[#FAF6F0]">
         {children}
       </body>
     </html>

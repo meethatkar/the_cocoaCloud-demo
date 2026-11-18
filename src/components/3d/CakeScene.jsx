@@ -44,11 +44,11 @@ function CakeSceneComponent({ config, autoRotate = true, viewAngle = "front" }) 
         {/* Soft Realistic Contact Shadows on Ground */}
         <ContactShadows
           position={[0, -0.68, 0]}
-          opacity={0.65}
+          opacity={0.4}
           scale={7}
           blur={1.8}
           far={3.5}
-          color="#080606"
+          color="#3A281E"
         />
       </group>
 

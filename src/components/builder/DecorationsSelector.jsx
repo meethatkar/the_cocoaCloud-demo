@@ -8,17 +8,17 @@ function DecorationsSelectorComponent({ decorations = [], onToggle }) {
   const getIcon = (icon) => {
     switch (icon) {
       case "flame":
-        return <Flame className="w-4 h-4 text-amber-400" />;
+        return <Flame className="w-4 h-4 text-[#C86D51]" />;
       case "sparkles":
-        return <Sparkles className="w-4 h-4 text-pink-400" />;
+        return <Sparkles className="w-4 h-4 text-[#C5A059]" />;
       case "flower":
-        return <Flower className="w-4 h-4 text-rose-400" />;
+        return <Flower className="w-4 h-4 text-[#C86D51]" />;
       case "gem":
-        return <Gem className="w-4 h-4 text-yellow-400" />;
+        return <Gem className="w-4 h-4 text-[#C5A059]" />;
       case "wind":
-        return <Wind className="w-4 h-4 text-sky-200" />;
+        return <Wind className="w-4 h-4 text-[#6B574F]" />;
       case "circle-dot":
-        return <CircleDot className="w-4 h-4 text-slate-300" />;
+        return <CircleDot className="w-4 h-4 text-[#C5A059]" />;
       default:
         return <Sparkles className="w-4 h-4" />;
     }
@@ -27,11 +27,11 @@ function DecorationsSelectorComponent({ decorations = [], onToggle }) {
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <label className="text-xs uppercase tracking-wider text-[#D4AF37] font-semibold flex items-center gap-2">
-          <span>Artisanal Embellishments</span>
+        <label className="text-xs uppercase tracking-wider text-[#C86D51] font-semibold flex items-center gap-2">
+          <span>Artisanal Embellishments & Florals</span>
         </label>
-        <span className="text-xs text-zinc-400 font-mono">
-          {decorations.length} Active
+        <span className="text-xs text-[#6B574F] font-medium">
+          {decorations.length} Selected
         </span>
       </div>
 
@@ -43,29 +43,29 @@ function DecorationsSelectorComponent({ decorations = [], onToggle }) {
               key={item.id}
               type="button"
               onClick={() => onToggle(item.id)}
-              className={`flex items-start gap-3 p-3 rounded-xl border text-left transition-all ${
+              className={`flex items-start gap-3 p-3 rounded-2xl border text-left transition-all ${
                 isSelected
-                  ? "bg-[#D4AF37]/15 border-[#D4AF37] text-white shadow-sm ring-1 ring-[#D4AF37]/30"
-                  : "bg-[#181414]/70 border-white/10 text-zinc-300 hover:border-white/20"
+                  ? "bg-[#FAF6F0] border-[#C86D51] text-[#2C1E18] shadow-sm ring-2 ring-[#C86D51]/30"
+                  : "bg-[#FAF6F0]/60 border-[#C5A059]/30 text-[#6B574F] hover:border-[#C86D51]/40 hover:bg-[#FAF6F0]"
               }`}
             >
               <div
-                className={`p-2 rounded-lg flex-shrink-0 ${
-                  isSelected ? "bg-[#D4AF37]/20" : "bg-white/5"
+                className={`p-2 rounded-xl flex-shrink-0 ${
+                  isSelected ? "bg-[#C86D51]/15" : "bg-black/5"
                 }`}
               >
                 {getIcon(item.icon)}
               </div>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center justify-between gap-1">
-                  <span className="text-xs font-semibold text-white">
+                  <span className="text-xs font-semibold text-[#2C1E18]">
                     {item.name}
                   </span>
-                  <span className="text-[11px] font-mono text-[#F3E5AB]">
+                  <span className="text-[11px] font-mono text-[#C86D51] font-bold">
                     +₹{item.price}
                   </span>
                 </div>
-                <p className="text-[10px] text-zinc-400 mt-0.5 line-clamp-1">
+                <p className="text-[10px] text-[#6B574F] mt-0.5 line-clamp-1">
                   {item.description}
                 </p>
               </div>
@@ -78,4 +78,3 @@ function DecorationsSelectorComponent({ decorations = [], onToggle }) {
 }
 
 export const DecorationsSelector = memo(DecorationsSelectorComponent);
-

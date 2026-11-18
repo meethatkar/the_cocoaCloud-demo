@@ -8,12 +8,12 @@ function DripSelectorComponent({ dripColor, onChange }) {
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <label className="text-xs uppercase tracking-wider text-[#D4AF37] font-semibold flex items-center gap-2">
+        <label className="text-xs uppercase tracking-wider text-[#C86D51] font-semibold flex items-center gap-2">
           <Droplet className="w-3.5 h-3.5" />
-          <span>Glaze & Ganache Cascade (Drip)</span>
+          <span>Glaze Cascade & Drip Finish</span>
         </label>
-        <span className="text-xs text-zinc-400 font-mono">
-          {dripColor ? "Active" : "None"}
+        <span className="text-xs text-[#6B574F] font-medium">
+          {dripColor ? "Active Finish" : "Naked Edge"}
         </span>
       </div>
 
@@ -25,23 +25,25 @@ function DripSelectorComponent({ dripColor, onChange }) {
               key={item.id}
               type="button"
               onClick={() => onChange(item.hex)}
-              className={`flex items-center gap-2 p-2 rounded-xl border text-left transition-all ${
+              className={`flex items-center gap-2 p-2 rounded-2xl border text-left transition-all ${
                 isSelected
-                  ? "bg-[#D4AF37]/15 border-[#D4AF37] text-white ring-1 ring-[#D4AF37]/40"
-                  : "bg-[#181414]/70 border-white/10 text-zinc-300 hover:border-white/20"
+                  ? "bg-[#FAF6F0] border-[#C86D51] text-[#2C1E18] shadow-sm ring-2 ring-[#C86D51]/30"
+                  : "bg-[#FAF6F0]/60 border-[#C5A059]/30 text-[#6B574F] hover:border-[#C86D51]/40 hover:bg-[#FAF6F0]"
               }`}
             >
               {item.hex ? (
                 <div
-                  className="w-5 h-5 rounded-full flex-shrink-0 border border-white/20 shadow-sm"
+                  className="w-5 h-5 rounded-full flex-shrink-0 border-2 border-white shadow-sm"
                   style={{ backgroundColor: item.hex }}
                 />
               ) : (
-                <div className="w-5 h-5 rounded-full flex-shrink-0 border border-dashed border-zinc-500 flex items-center justify-center text-[10px] text-zinc-500">
+                <div className="w-5 h-5 rounded-full flex-shrink-0 border border-dashed border-[#6B574F] flex items-center justify-center text-[10px] text-[#6B574F]">
                   ✕
                 </div>
               )}
-              <span className="text-xs font-medium truncate">{item.name}</span>
+              <span className="text-xs font-semibold text-[#2C1E18] truncate">
+                {item.name}
+              </span>
             </button>
           );
         })}
@@ -51,4 +53,3 @@ function DripSelectorComponent({ dripColor, onChange }) {
 }
 
 export const DripSelector = memo(DripSelectorComponent);
-

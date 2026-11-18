@@ -15,7 +15,7 @@ export default function Home() {
   useScrollAnimation();
 
   return (
-    <div className="relative min-h-screen bg-[#0F0D0D] text-[#F5F2EB] flex flex-col overflow-x-hidden">
+    <div className="relative min-h-screen bg-[#FAF6F0] text-[#2C1E18] flex flex-col overflow-x-hidden selection:bg-[#C86D51] selection:text-[#FAF6F0]">
       {/* 1. Header with transparent-to-solid scroll effect */}
       <Header />
 
@@ -23,10 +23,10 @@ export default function Home() {
         {/* 2. Hero Section */}
         <Hero />
 
-        {/* 3. Highlight Section (Occasions Gallery) */}
+        {/* 3. Highlight Section (Occasions Gallery with Arch-shaped frames) */}
         <OccasionsGallery />
 
-        {/* 4. Main Section: The 3D Custom Cake Builder */}
+        {/* 4. Main Section: The 3D Custom Cake Builder with Glassmorphic Floating Summary Bar */}
         <CakeBuilderSection />
 
         {/* 5. Feedback / Process Timeline Section */}
@@ -36,7 +36,7 @@ export default function Home() {
       {/* 6. Footer with Mumbai Delivery Zones */}
       <Footer />
 
-      {/* Global Slide-Out Tasting Box / Cart Drawer */}
+      {/* Global Slide-Out Tasting Boîte / Cart Drawer */}
       <CartDrawer />
     </div>
   );

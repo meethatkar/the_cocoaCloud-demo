@@ -9,17 +9,17 @@ function PlaqueTextInputComponent({ customText, onChange }) {
     "Happy Anniversary",
     "Mr. & Mrs.",
     "Bonne Fête",
-    "Forever & Always",
+    "Pour Toujours",
   ];
 
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <label className="text-xs uppercase tracking-wider text-[#D4AF37] font-semibold flex items-center gap-2">
+        <label className="text-xs uppercase tracking-wider text-[#C86D51] font-semibold flex items-center gap-2">
           <PenTool className="w-3.5 h-3.5" />
           <span>Calligraphy Plaque Inscription</span>
         </label>
-        <span className="text-[11px] text-zinc-400 font-mono">
+        <span className="text-[11px] text-[#6B574F] font-mono">
           {(customText || "").length}/28 chars
         </span>
       </div>
@@ -30,8 +30,8 @@ function PlaqueTextInputComponent({ customText, onChange }) {
           maxLength={28}
           value={customText || ""}
           onChange={(e) => onChange(e.target.value)}
-          placeholder="e.g. Happy 30th Birthday Aria!"
-          className="w-full bg-[#151212] border border-[#D4AF37]/30 rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37] transition-all"
+          placeholder="e.g. Joyeux Anniversaire Chérie"
+          className="w-full bg-[#FAF6F0] border border-[#C5A059]/40 rounded-2xl px-4 py-3 text-sm text-[#2C1E18] placeholder-[#9E897F] focus:outline-none focus:border-[#C86D51] focus:ring-2 focus:ring-[#C86D51]/30 transition-all font-serif-editorial"
         />
       </div>
 
@@ -42,7 +42,7 @@ function PlaqueTextInputComponent({ customText, onChange }) {
             key={text}
             type="button"
             onClick={() => onChange(text)}
-            className="text-[11px] px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-zinc-300 hover:border-[#D4AF37]/50 hover:text-white transition-all"
+            className="text-[11px] px-3 py-1 rounded-full bg-[#FAF6F0] border border-[#C5A059]/30 text-[#6B574F] hover:border-[#C86D51] hover:text-[#C86D51] transition-all font-medium"
           >
             {text}
           </button>
@@ -53,4 +53,3 @@ function PlaqueTextInputComponent({ customText, onChange }) {
 }
 
 export const PlaqueTextInput = memo(PlaqueTextInputComponent);
-

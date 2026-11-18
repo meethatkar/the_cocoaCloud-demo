@@ -4,16 +4,16 @@ import React, { Suspense, memo } from "react";
 import { Canvas } from "@react-three/fiber";
 import { CakeScene } from "./CakeScene";
 import { useCanvasConfig } from "@/hooks/useCakeConfig";
-import { RotateCw, Eye, Sparkles } from "lucide-react";
+import { RotateCw, Sparkles } from "lucide-react";
 
 function CanvasLoader() {
   return (
-    <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#0F0D0D]/80 backdrop-blur-sm z-20">
+    <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#FAF6F0]/85 backdrop-blur-sm z-20">
       <div className="relative w-16 h-16 mb-4">
-        <div className="absolute inset-0 rounded-full border-2 border-[#D4AF37]/20 border-t-[#D4AF37] animate-spin" />
-        <div className="absolute inset-2 rounded-full border-2 border-[#D4AF37]/10 border-b-[#F3E5AB] animate-spin [animation-duration:1.5s]" />
+        <div className="absolute inset-0 rounded-full border-2 border-[#C5A059]/30 border-t-[#C86D51] animate-spin" />
+        <div className="absolute inset-2 rounded-full border-2 border-[#C5A059]/20 border-b-[#C5A059] animate-spin [animation-duration:1.5s]" />
       </div>
-      <p className="text-xs uppercase tracking-widest text-[#D4AF37] font-medium">
+      <p className="text-xs uppercase tracking-widest text-[#2C1E18] font-medium font-serif-editorial">
         Sculpting Confectionery...
       </p>
     </div>
@@ -25,7 +25,7 @@ function CakeCanvasComponent() {
     useCanvasConfig();
 
   return (
-    <div className="relative w-full h-full min-h-[460px] lg:min-h-[640px] bg-gradient-to-b from-[#181313] via-[#120F0F] to-[#0D0B0B] overflow-hidden rounded-3xl border border-[#D4AF37]/15 shadow-2xl">
+    <div className="relative w-full h-full min-h-[460px] lg:min-h-[640px] bg-gradient-to-b from-[#FAF6F0] via-[#F4ECE1] to-[#EBE0D2] overflow-hidden rounded-[32px] border border-[#C5A059]/35 shadow-[0_12px_40px_-15px_rgba(44,30,24,0.12)]">
       {/* 3D WebGL Canvas */}
       <Canvas
         shadows
@@ -35,7 +35,7 @@ function CakeCanvasComponent() {
           alpha: true,
           powerPreference: "high-performance",
         }}
-        dpr={[1, 2]} // Crisp rendering on high-DPI displays
+        dpr={[1, 2]}
       >
         <Suspense fallback={null}>
           <CakeScene
@@ -49,14 +49,14 @@ function CakeCanvasComponent() {
       {/* Floating 3D Viewport Controls */}
       <div className="absolute bottom-5 left-5 right-5 flex items-center justify-between pointer-events-none z-10">
         {/* Left: View Angle Toggles */}
-        <div className="flex items-center gap-1.5 p-1 bg-[#1A1616]/80 backdrop-blur-md rounded-full border border-[#D4AF37]/20 pointer-events-auto shadow-lg">
+        <div className="flex items-center gap-1.5 p-1 bg-[#FAF6F0]/90 backdrop-blur-md rounded-full border border-[#C5A059]/40 pointer-events-auto shadow-md">
           <button
             type="button"
             onClick={() => setViewAngle("front")}
-            className={`px-3 py-1.5 text-xs rounded-full font-medium transition-all ${
+            className={`px-3.5 py-1.5 text-xs rounded-full font-medium transition-all ${
               viewAngle === "front"
-                ? "bg-[#D4AF37] text-[#0F0D0D] shadow-sm"
-                : "text-zinc-300 hover:text-white"
+                ? "bg-[#C86D51] text-white shadow-sm"
+                : "text-[#6B574F] hover:text-[#2C1E18]"
             }`}
           >
             Front
@@ -64,10 +64,10 @@ function CakeCanvasComponent() {
           <button
             type="button"
             onClick={() => setViewAngle("isometric")}
-            className={`px-3 py-1.5 text-xs rounded-full font-medium transition-all ${
+            className={`px-3.5 py-1.5 text-xs rounded-full font-medium transition-all ${
               viewAngle === "isometric"
-                ? "bg-[#D4AF37] text-[#0F0D0D] shadow-sm"
-                : "text-zinc-300 hover:text-white"
+                ? "bg-[#C86D51] text-white shadow-sm"
+                : "text-[#6B574F] hover:text-[#2C1E18]"
             }`}
           >
             45° Iso
@@ -75,25 +75,25 @@ function CakeCanvasComponent() {
           <button
             type="button"
             onClick={() => setViewAngle("top")}
-            className={`px-3 py-1.5 text-xs rounded-full font-medium transition-all ${
+            className={`px-3.5 py-1.5 text-xs rounded-full font-medium transition-all ${
               viewAngle === "top"
-                ? "bg-[#D4AF37] text-[#0F0D0D] shadow-sm"
-                : "text-zinc-300 hover:text-white"
+                ? "bg-[#C86D51] text-white shadow-sm"
+                : "text-[#6B574F] hover:text-[#2C1E18]"
             }`}
           >
             Top
           </button>
         </div>
 
-        {/* Right: Auto Rotate & Hint */}
+        {/* Right: Auto Rotate Toggle */}
         <div className="flex items-center gap-2 pointer-events-auto">
           <button
             type="button"
             onClick={() => setAutoRotate(!autoRotate)}
-            className={`flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-full border backdrop-blur-md transition-all shadow-lg ${
+            className={`flex items-center gap-1.5 px-3.5 py-1.5 text-xs rounded-full border backdrop-blur-md transition-all shadow-md ${
               autoRotate
-                ? "bg-[#D4AF37]/20 border-[#D4AF37] text-[#F3E5AB]"
-                : "bg-[#1A1616]/80 border-white/10 text-zinc-400 hover:text-zinc-200"
+                ? "bg-[#C86D51] border-[#C86D51] text-white"
+                : "bg-[#FAF6F0]/90 border-[#C5A059]/40 text-[#6B574F] hover:text-[#2C1E18]"
             }`}
             title="Toggle 360° rotation"
           >
@@ -104,8 +104,8 @@ function CakeCanvasComponent() {
       </div>
 
       {/* Top subtle interaction hint */}
-      <div className="absolute top-4 left-4 flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#1A1616]/60 backdrop-blur-md border border-white/10 text-zinc-400 text-[11px] pointer-events-none">
-        <Sparkles className="w-3.5 h-3.5 text-[#D4AF37]" />
+      <div className="absolute top-4 left-4 flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#FAF6F0]/85 backdrop-blur-md border border-[#C5A059]/30 text-[#6B574F] text-[11px] pointer-events-none shadow-xs">
+        <Sparkles className="w-3.5 h-3.5 text-[#C86D51]" />
         <span>Drag to rotate • Pinch to zoom</span>
       </div>
     </div>
@@ -113,4 +113,3 @@ function CakeCanvasComponent() {
 }
 
 export const CakeCanvas = memo(CakeCanvasComponent);
-
