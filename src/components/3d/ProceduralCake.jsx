@@ -12,7 +12,7 @@ import { PipedBorderRing, PipedPathBorder, SculptedDripRing, FrenchMacaron } fro
 /**
  * Enhanced Photorealistic 3D Cake with Custom GLSL Shaders,
  * Centered Beveled Geometries (Round, Square, Heart),
- * and Multi-Shape Piped Borders & Decorations.
+ * and Multi-Shape Synchronized Piped Borders, Drips & Decorations.
  */
 function ProceduralCakeComponent({ config }) {
   const {
@@ -118,7 +118,6 @@ function ProceduralCakeComponent({ config }) {
         else shape.lineTo(px, py);
       }
 
-      // Sample evenly for perimeter piped pearls
       for (let i = 0; i < count; i++) {
         const t = (i / count) * Math.PI * 2;
         const x = 16 * Math.pow(Math.sin(t), 3);
@@ -127,9 +126,9 @@ function ProceduralCakeComponent({ config }) {
           5 * Math.cos(2 * t) -
           2 * Math.cos(3 * t) -
           Math.cos(4 * t);
-        // Note: Extrude geometry rotated by [-Math.PI / 2, 0, 0] maps Y to -Z
-        const px = (x / 16) * scale;
-        const pz = -((y + 2.5) / 16) * scale;
+        // Note: Outer offset (1.05) so piping/drips sit outside bevel
+        const px = (x / 16) * scale * 1.05;
+        const pz = -((y + 2.5) / 16) * scale * 1.05;
         points.push({ x: px, z: pz });
       }
 
@@ -147,7 +146,7 @@ function ProceduralCakeComponent({ config }) {
       bevelSize: 0.06,
       bevelThickness: 0.06,
     });
-    ext1.center(); // Center bounding box to (0,0,0)
+    ext1.center();
 
     const ext2 = new THREE.ExtrudeGeometry(h2.shape, {
       depth: t2Height,
@@ -190,14 +189,13 @@ function ProceduralCakeComponent({ config }) {
       shape.lineTo(-h, -h + radius);
       shape.absarc(-h + radius, -h + radius, radius, Math.PI, Math.PI * 1.5, false);
 
-      // Sample perimeter points for piping
       const points = [];
-      const perimeter = (size - 2 * radius) * 4 + 2 * Math.PI * radius;
+      // Offset by 1.045 so points lie outside the 0.06 bevel
+      const outerScale = 1.045;
       for (let i = 0; i < count; i++) {
         const u = i / count;
         const pt = shape.getPointAt(u);
-        // Note: Extrude geometry rotated by [-Math.PI / 2, 0, 0] maps Y to -Z
-        points.push({ x: pt.x, z: -pt.y });
+        points.push({ x: pt.x * outerScale, z: -pt.y * outerScale });
       }
 
       return { shape, points };
@@ -240,7 +238,7 @@ function ProceduralCakeComponent({ config }) {
     };
   }, [t1Height, t2Height, t3Height]);
 
-  // Smooth animation and shader uniforms clock
+  // Smooth tier animations & shader uniforms time
   useFrame(({ clock }, delta) => {
     const time = clock.getElapsedTime();
     if (buttercreamMaterial && buttercreamMaterial.uniforms) {
@@ -298,8 +296,8 @@ function ProceduralCakeComponent({ config }) {
     }
   });
 
-  // Plaque Z offset based on shape
-  const plaqueZ = shape === "Square" ? 1.68 : shape === "Heart" ? 1.72 : 2.03;
+  // Plaque Z offset: sits right on the front face, clearly visible
+  const plaqueZ = shape === "Square" ? 1.72 : shape === "Heart" ? 1.74 : 2.08;
 
   return (
     <group position={[0, -0.15, 0]}>
@@ -311,15 +309,15 @@ function ProceduralCakeComponent({ config }) {
             <mesh position={[0, t1Y, 0]} castShadow receiveShadow material={buttercreamMaterial}>
               <cylinderGeometry args={[2.0, 2.0, t1Height, 64]} />
             </mesh>
-            <PipedBorderRing radius={2.02} y={0.03} beadCount={52} beadRadius={0.07} material={pipedBorderMaterial} />
-            <PipedBorderRing radius={2.0} y={t1Height} beadCount={48} beadRadius={0.065} material={pipedBorderMaterial} />
+            <PipedBorderRing radius={2.04} y={0.03} beadCount={52} beadRadius={0.07} material={pipedBorderMaterial} />
+            <PipedBorderRing radius={2.04} y={t1Height + 0.01} beadCount={48} beadRadius={0.065} material={pipedBorderMaterial} />
             {dripColor && dripShaderMaterial && (
-              <SculptedDripRing radius={2.01} y={t1Height} dripCount={22} material={dripShaderMaterial} />
+              <SculptedDripRing radius={2.04} y={t1Height} dripCount={22} material={dripShaderMaterial} />
             )}
           </>
         )}
 
-        {/* SQUARE TIER 1 (Beveled & Centered) */}
+        {/* SQUARE TIER 1 */}
         {shape === "Square" && (
           <>
             <mesh
@@ -330,12 +328,60 @@ function ProceduralCakeComponent({ config }) {
               receiveShadow
               material={buttercreamMaterial}
             />
-            <PipedPathBorder points={squarePerimeterPoints.t1} y={0.03} beadRadius={0.068} material={pipedBorderMaterial} />
-            <PipedPathBorder points={squarePerimeterPoints.t1} y={t1Height} beadRadius={0.065} material={pipedBorderMaterial} />
+            <PipedPathBorder points={squarePerimeterPoints.t1} y={0.03} beadRadius={0.07} material={pipedBorderMaterial} />
+            <PipedPathBorder points={squarePerimeterPoints.t1} y={t1Height + 0.01} beadRadius={0.065} material={pipedBorderMaterial} />
+            {dripColor && dripShaderMaterial && (
+              <group position={[0, t1Height, 0]}>
+                {[-1.2, -0.6, 0, 0.6, 1.2].map((coord, i) => {
+                  const half = 1.685;
+                  const dLen = 0.16 + (i % 3) * 0.07;
+                  return (
+                    <React.Fragment key={i}>
+                      {/* Front */}
+                      <group position={[coord, 0, half]}>
+                        <mesh position={[0, -dLen / 2, 0]} material={dripShaderMaterial} castShadow>
+                          <cylinderGeometry args={[0.026, 0.036, dLen, 8]} />
+                        </mesh>
+                        <mesh position={[0, -dLen, 0]} material={dripShaderMaterial} castShadow>
+                          <sphereGeometry args={[0.046, 10, 10]} />
+                        </mesh>
+                      </group>
+                      {/* Right */}
+                      <group position={[half, 0, coord]}>
+                        <mesh position={[0, -dLen / 2, 0]} material={dripShaderMaterial} castShadow>
+                          <cylinderGeometry args={[0.026, 0.036, dLen, 8]} />
+                        </mesh>
+                        <mesh position={[0, -dLen, 0]} material={dripShaderMaterial} castShadow>
+                          <sphereGeometry args={[0.046, 10, 10]} />
+                        </mesh>
+                      </group>
+                      {/* Back */}
+                      <group position={[coord, 0, -half]}>
+                        <mesh position={[0, -dLen / 2, 0]} material={dripShaderMaterial} castShadow>
+                          <cylinderGeometry args={[0.026, 0.036, dLen, 8]} />
+                        </mesh>
+                        <mesh position={[0, -dLen, 0]} material={dripShaderMaterial} castShadow>
+                          <sphereGeometry args={[0.046, 10, 10]} />
+                        </mesh>
+                      </group>
+                      {/* Left */}
+                      <group position={[-half, 0, coord]}>
+                        <mesh position={[0, -dLen / 2, 0]} material={dripShaderMaterial} castShadow>
+                          <cylinderGeometry args={[0.026, 0.036, dLen, 8]} />
+                        </mesh>
+                        <mesh position={[0, -dLen, 0]} material={dripShaderMaterial} castShadow>
+                          <sphereGeometry args={[0.046, 10, 10]} />
+                        </mesh>
+                      </group>
+                    </React.Fragment>
+                  );
+                })}
+              </group>
+            )}
           </>
         )}
 
-        {/* HEART TIER 1 (Mathematically Centered & Beveled) */}
+        {/* HEART TIER 1 */}
         {shape === "Heart" && (
           <>
             <mesh
@@ -346,8 +392,22 @@ function ProceduralCakeComponent({ config }) {
               receiveShadow
               material={buttercreamMaterial}
             />
-            <PipedPathBorder points={heartPerimeterPoints.t1} y={0.03} beadRadius={0.068} material={pipedBorderMaterial} />
-            <PipedPathBorder points={heartPerimeterPoints.t1} y={t1Height} beadRadius={0.065} material={pipedBorderMaterial} />
+            <PipedPathBorder points={heartPerimeterPoints.t1} y={0.03} beadRadius={0.07} material={pipedBorderMaterial} />
+            <PipedPathBorder points={heartPerimeterPoints.t1} y={t1Height + 0.01} beadRadius={0.065} material={pipedBorderMaterial} />
+            {dripColor && dripShaderMaterial && (
+              <group position={[0, t1Height, 0]}>
+                {heartPerimeterPoints.t1.filter((_, i) => i % 2 === 0).map((pt, i) => (
+                  <group key={i} position={[pt.x, 0, pt.z]}>
+                    <mesh position={[0, -0.09, 0]} material={dripShaderMaterial} castShadow>
+                      <cylinderGeometry args={[0.026, 0.036, 0.18, 8]} />
+                    </mesh>
+                    <mesh position={[0, -0.18, 0]} material={dripShaderMaterial} castShadow>
+                      <sphereGeometry args={[0.046, 10, 10]} />
+                    </mesh>
+                  </group>
+                ))}
+              </group>
+            )}
           </>
         )}
 
@@ -384,15 +444,15 @@ function ProceduralCakeComponent({ config }) {
             <mesh position={[0, t2Y, 0]} castShadow receiveShadow material={buttercreamMaterial}>
               <cylinderGeometry args={[1.4, 1.4, t2Height, 64]} />
             </mesh>
-            <PipedBorderRing radius={1.41} y={t1Height + 0.02} beadCount={36} beadRadius={0.06} material={pipedBorderMaterial} />
-            <PipedBorderRing radius={1.4} y={t1Height + t2Height} beadCount={34} beadRadius={0.055} material={pipedBorderMaterial} />
+            <PipedBorderRing radius={1.44} y={t1Height + 0.02} beadCount={36} beadRadius={0.06} material={pipedBorderMaterial} />
+            <PipedBorderRing radius={1.44} y={t1Height + t2Height + 0.01} beadCount={34} beadRadius={0.055} material={pipedBorderMaterial} />
             {dripColor && dripShaderMaterial && (
-              <SculptedDripRing radius={1.41} y={t1Height + t2Height} dripCount={16} material={dripShaderMaterial} />
+              <SculptedDripRing radius={1.44} y={t1Height + t2Height} dripCount={16} material={dripShaderMaterial} />
             )}
           </>
         )}
 
-        {/* SQUARE TIER 2 (Beveled & Centered) */}
+        {/* SQUARE TIER 2 */}
         {shape === "Square" && (
           <>
             <mesh
@@ -403,12 +463,56 @@ function ProceduralCakeComponent({ config }) {
               receiveShadow
               material={buttercreamMaterial}
             />
-            <PipedPathBorder points={squarePerimeterPoints.t2} y={t1Height + 0.02} beadRadius={0.058} material={pipedBorderMaterial} />
-            <PipedPathBorder points={squarePerimeterPoints.t2} y={t1Height + t2Height} beadRadius={0.055} material={pipedBorderMaterial} />
+            <PipedPathBorder points={squarePerimeterPoints.t2} y={t1Height + 0.02} beadRadius={0.06} material={pipedBorderMaterial} />
+            <PipedPathBorder points={squarePerimeterPoints.t2} y={t1Height + t2Height + 0.01} beadRadius={0.055} material={pipedBorderMaterial} />
+            {dripColor && dripShaderMaterial && (
+              <group position={[0, t1Height + t2Height, 0]}>
+                {[-0.8, -0.4, 0, 0.4, 0.8].map((coord, i) => {
+                  const half = 1.21;
+                  const dLen = 0.14 + (i % 3) * 0.06;
+                  return (
+                    <React.Fragment key={i}>
+                      <group position={[coord, 0, half]}>
+                        <mesh position={[0, -dLen / 2, 0]} material={dripShaderMaterial} castShadow>
+                          <cylinderGeometry args={[0.024, 0.032, dLen, 8]} />
+                        </mesh>
+                        <mesh position={[0, -dLen, 0]} material={dripShaderMaterial} castShadow>
+                          <sphereGeometry args={[0.04, 10, 10]} />
+                        </mesh>
+                      </group>
+                      <group position={[half, 0, coord]}>
+                        <mesh position={[0, -dLen / 2, 0]} material={dripShaderMaterial} castShadow>
+                          <cylinderGeometry args={[0.024, 0.032, dLen, 8]} />
+                        </mesh>
+                        <mesh position={[0, -dLen, 0]} material={dripShaderMaterial} castShadow>
+                          <sphereGeometry args={[0.04, 10, 10]} />
+                        </mesh>
+                      </group>
+                      <group position={[coord, 0, -half]}>
+                        <mesh position={[0, -dLen / 2, 0]} material={dripShaderMaterial} castShadow>
+                          <cylinderGeometry args={[0.024, 0.032, dLen, 8]} />
+                        </mesh>
+                        <mesh position={[0, -dLen, 0]} material={dripShaderMaterial} castShadow>
+                          <sphereGeometry args={[0.04, 10, 10]} />
+                        </mesh>
+                      </group>
+                      <group position={[-half, 0, coord]}>
+                        <mesh position={[0, -dLen / 2, 0]} material={dripShaderMaterial} castShadow>
+                          <cylinderGeometry args={[0.024, 0.032, dLen, 8]} />
+                        </mesh>
+                        <mesh position={[0, -dLen, 0]} material={dripShaderMaterial} castShadow>
+                          <sphereGeometry args={[0.04, 10, 10]} />
+                        </mesh>
+                      </group>
+                    </React.Fragment>
+                  );
+                })}
+              </group>
+            )}
           </>
         )}
 
-        {/* HEART TIER 2 (Mathematically Centered & Beveled) */}
+        {/* HEART TIER 2 */}
         {shape === "Heart" && (
           <>
             <mesh
@@ -419,8 +523,22 @@ function ProceduralCakeComponent({ config }) {
               receiveShadow
               material={buttercreamMaterial}
             />
-            <PipedPathBorder points={heartPerimeterPoints.t2} y={t1Height + 0.02} beadRadius={0.058} material={pipedBorderMaterial} />
-            <PipedPathBorder points={heartPerimeterPoints.t2} y={t1Height + t2Height} beadRadius={0.055} material={pipedBorderMaterial} />
+            <PipedPathBorder points={heartPerimeterPoints.t2} y={t1Height + 0.02} beadRadius={0.06} material={pipedBorderMaterial} />
+            <PipedPathBorder points={heartPerimeterPoints.t2} y={t1Height + t2Height + 0.01} beadRadius={0.055} material={pipedBorderMaterial} />
+            {dripColor && dripShaderMaterial && (
+              <group position={[0, t1Height + t2Height, 0]}>
+                {heartPerimeterPoints.t2.filter((_, i) => i % 2 === 0).map((pt, i) => (
+                  <group key={i} position={[pt.x, 0, pt.z]}>
+                    <mesh position={[0, -0.08, 0]} material={dripShaderMaterial} castShadow>
+                      <cylinderGeometry args={[0.024, 0.032, 0.16, 8]} />
+                    </mesh>
+                    <mesh position={[0, -0.16, 0]} material={dripShaderMaterial} castShadow>
+                      <sphereGeometry args={[0.04, 10, 10]} />
+                    </mesh>
+                  </group>
+                ))}
+              </group>
+            )}
           </>
         )}
       </group>
@@ -433,11 +551,11 @@ function ProceduralCakeComponent({ config }) {
             <mesh position={[0, t3Y, 0]} castShadow receiveShadow material={buttercreamMaterial}>
               <cylinderGeometry args={[0.85, 0.85, t3Height, 64]} />
             </mesh>
-            <PipedBorderRing radius={0.86} y={t1Height + t2Height + 0.02} beadCount={24} beadRadius={0.05} material={pipedBorderMaterial} />
-            <PipedBorderRing radius={0.85} y={t1Height + t2Height + t3Height} beadCount={22} beadRadius={0.05} material={pipedBorderMaterial} />
+            <PipedBorderRing radius={0.88} y={t1Height + t2Height + 0.02} beadCount={24} beadRadius={0.05} material={pipedBorderMaterial} />
+            <PipedBorderRing radius={0.88} y={t1Height + t2Height + t3Height + 0.01} beadCount={22} beadRadius={0.05} material={pipedBorderMaterial} />
             {dripColor && dripShaderMaterial && (
               <SculptedDripRing
-                radius={0.86}
+                radius={0.88}
                 y={t1Height + t2Height + t3Height}
                 dripCount={12}
                 material={dripShaderMaterial}
@@ -446,7 +564,7 @@ function ProceduralCakeComponent({ config }) {
           </>
         )}
 
-        {/* SQUARE TIER 3 (Beveled & Centered) */}
+        {/* SQUARE TIER 3 */}
         {shape === "Square" && (
           <>
             <mesh
@@ -457,12 +575,56 @@ function ProceduralCakeComponent({ config }) {
               receiveShadow
               material={buttercreamMaterial}
             />
-            <PipedPathBorder points={squarePerimeterPoints.t3} y={t1Height + t2Height + 0.02} beadRadius={0.048} material={pipedBorderMaterial} />
-            <PipedPathBorder points={squarePerimeterPoints.t3} y={t1Height + t2Height + t3Height} beadRadius={0.048} material={pipedBorderMaterial} />
+            <PipedPathBorder points={squarePerimeterPoints.t3} y={t1Height + t2Height + 0.02} beadRadius={0.05} material={pipedBorderMaterial} />
+            <PipedPathBorder points={squarePerimeterPoints.t3} y={t1Height + t2Height + t3Height + 0.01} beadRadius={0.05} material={pipedBorderMaterial} />
+            {dripColor && dripShaderMaterial && (
+              <group position={[0, t1Height + t2Height + t3Height, 0]}>
+                {[-0.45, 0, 0.45].map((coord, i) => {
+                  const half = 0.76;
+                  const dLen = 0.12 + (i % 2) * 0.05;
+                  return (
+                    <React.Fragment key={i}>
+                      <group position={[coord, 0, half]}>
+                        <mesh position={[0, -dLen / 2, 0]} material={dripShaderMaterial} castShadow>
+                          <cylinderGeometry args={[0.02, 0.028, dLen, 8]} />
+                        </mesh>
+                        <mesh position={[0, -dLen, 0]} material={dripShaderMaterial} castShadow>
+                          <sphereGeometry args={[0.035, 10, 10]} />
+                        </mesh>
+                      </group>
+                      <group position={[half, 0, coord]}>
+                        <mesh position={[0, -dLen / 2, 0]} material={dripShaderMaterial} castShadow>
+                          <cylinderGeometry args={[0.02, 0.028, dLen, 8]} />
+                        </mesh>
+                        <mesh position={[0, -dLen, 0]} material={dripShaderMaterial} castShadow>
+                          <sphereGeometry args={[0.035, 10, 10]} />
+                        </mesh>
+                      </group>
+                      <group position={[coord, 0, -half]}>
+                        <mesh position={[0, -dLen / 2, 0]} material={dripShaderMaterial} castShadow>
+                          <cylinderGeometry args={[0.02, 0.028, dLen, 8]} />
+                        </mesh>
+                        <mesh position={[0, -dLen, 0]} material={dripShaderMaterial} castShadow>
+                          <sphereGeometry args={[0.035, 10, 10]} />
+                        </mesh>
+                      </group>
+                      <group position={[-half, 0, coord]}>
+                        <mesh position={[0, -dLen / 2, 0]} material={dripShaderMaterial} castShadow>
+                          <cylinderGeometry args={[0.02, 0.028, dLen, 8]} />
+                        </mesh>
+                        <mesh position={[0, -dLen, 0]} material={dripShaderMaterial} castShadow>
+                          <sphereGeometry args={[0.035, 10, 10]} />
+                        </mesh>
+                      </group>
+                    </React.Fragment>
+                  );
+                })}
+              </group>
+            )}
           </>
         )}
 
-        {/* HEART TIER 3 (Mathematically Centered & Beveled) */}
+        {/* HEART TIER 3 */}
         {shape === "Heart" && (
           <>
             <mesh
@@ -473,8 +635,22 @@ function ProceduralCakeComponent({ config }) {
               receiveShadow
               material={buttercreamMaterial}
             />
-            <PipedPathBorder points={heartPerimeterPoints.t3} y={t1Height + t2Height + 0.02} beadRadius={0.048} material={pipedBorderMaterial} />
-            <PipedPathBorder points={heartPerimeterPoints.t3} y={t1Height + t2Height + t3Height} beadRadius={0.048} material={pipedBorderMaterial} />
+            <PipedPathBorder points={heartPerimeterPoints.t3} y={t1Height + t2Height + 0.02} beadRadius={0.05} material={pipedBorderMaterial} />
+            <PipedPathBorder points={heartPerimeterPoints.t3} y={t1Height + t2Height + t3Height + 0.01} beadRadius={0.05} material={pipedBorderMaterial} />
+            {dripColor && dripShaderMaterial && (
+              <group position={[0, t1Height + t2Height + t3Height, 0]}>
+                {heartPerimeterPoints.t3.filter((_, i) => i % 2 === 0).map((pt, i) => (
+                  <group key={i} position={[pt.x, 0, pt.z]}>
+                    <mesh position={[0, -0.07, 0]} material={dripShaderMaterial} castShadow>
+                      <cylinderGeometry args={[0.02, 0.028, 0.14, 8]} />
+                    </mesh>
+                    <mesh position={[0, -0.14, 0]} material={dripShaderMaterial} castShadow>
+                      <sphereGeometry args={[0.034, 10, 10]} />
+                    </mesh>
+                  </group>
+                ))}
+              </group>
+            )}
           </>
         )}
       </group>
@@ -482,14 +658,14 @@ function ProceduralCakeComponent({ config }) {
       {/* ================= FRENCH MACARONS (Safely Placed on Platter) ================= */}
       <group>
         <FrenchMacaron
-          position={[1.82, 0.04, 0.85]}
+          position={[1.88, 0.04, 0.95]}
           rotation={[0.1, 0.6, -0.15]}
           shellColor="#E8B4B8"
           fillingColor="#2C1E18"
           scale={0.9}
         />
         <FrenchMacaron
-          position={[-1.8, 0.04, 0.8]}
+          position={[-1.86, 0.04, 0.9]}
           rotation={[-0.1, 1.2, 0.2]}
           shellColor="#C2D5A8"
           fillingColor="#FFFFFF"
@@ -497,15 +673,16 @@ function ProceduralCakeComponent({ config }) {
         />
       </group>
 
-      {/* ================= ARTISANAL DECORATIONS ================= */}
+      {/* ================= FULLY SYNCHRONIZED ARTISANAL DECORATIONS ================= */}
       <ActiveDecorations
         decorations={decorations}
         topTierY={topTierY}
-        topRadius={topRadius}
+        topRadius={shape === "Square" ? 1.6 : topRadius}
         tierCount={tiers}
-        midTierY={t1Height}
-        midRadius={1.4}
-        baseRadius={2.0}
+        shape={shape}
+        t1Height={t1Height}
+        t2Height={t2Height}
+        t3Height={t3Height}
       />
     </group>
   );

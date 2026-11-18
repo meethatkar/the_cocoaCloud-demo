@@ -5,9 +5,9 @@ import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
 /**
- * Animated Candles with dynamic light flicker
+ * Animated Birthday Candles with dynamic flame flicker, centered on top tier
  */
-function Candles({ topTierY = 2.1, topTierRadius = 0.85 }) {
+const Candles = memo(function Candles({ topTierY = 2.1 }) {
   const flame1Ref = useRef();
   const flame2Ref = useRef();
   const flame3Ref = useRef();
@@ -30,8 +30,8 @@ function Candles({ topTierY = 2.1, topTierRadius = 0.85 }) {
 
   const candlePositions = [
     [0, topTierY, 0],
-    [-0.32, topTierY, 0.22],
-    [0.32, topTierY, -0.22],
+    [-0.22, topTierY, 0.16],
+    [0.22, topTierY, -0.16],
   ];
 
   return (
@@ -49,7 +49,6 @@ function Candles({ topTierY = 2.1, topTierRadius = 0.85 }) {
         const flameRef = idx === 0 ? flame1Ref : idx === 1 ? flame2Ref : flame3Ref;
         return (
           <group key={idx} position={pos}>
-            {/* Candle wax stick (Burnished Gold wax) */}
             <mesh position={[0, 0.25, 0]} castShadow>
               <cylinderGeometry args={[0.035, 0.035, 0.5, 16]} />
               <meshStandardMaterial
@@ -59,13 +58,11 @@ function Candles({ topTierY = 2.1, topTierRadius = 0.85 }) {
               />
             </mesh>
 
-            {/* Wick */}
             <mesh position={[0, 0.52, 0]}>
               <cylinderGeometry args={[0.008, 0.008, 0.06, 8]} />
               <meshBasicMaterial color="#1A1A1A" />
             </mesh>
 
-            {/* Flame cone with emissive glow */}
             <mesh ref={flameRef} position={[0, 0.6, 0]}>
               <coneGeometry args={[0.045, 0.14, 16]} />
               <meshBasicMaterial color="#FFB300" />
@@ -75,32 +72,58 @@ function Candles({ topTierY = 2.1, topTierRadius = 0.85 }) {
       })}
     </group>
   );
-}
+});
 
 /**
- * Colorful & chocolate sprinkles scattered on the top tier
+ * Shape-Aware Rainbow Sprinkles distributed evenly across top tier
  */
-function Sprinkles({ topTierY = 2.1, radius = 0.8 }) {
+const Sprinkles = memo(function Sprinkles({ topTierY = 2.1, shape = "Round", topRadius = 0.85 }) {
   const sprinkleData = useMemo(() => {
     const items = [];
     const colors = ["#FF69B4", "#4FC3F7", "#FFD54F", "#81C784", "#BA68C8", "#FFFFFF", "#4A2E18"];
     const count = 75;
 
     for (let i = 0; i < count; i++) {
-      const r = Math.sqrt(Math.random()) * (radius * 0.85);
-      const theta = Math.random() * Math.PI * 2;
-      const x = Math.cos(theta) * r;
-      const z = Math.sin(theta) * r;
+      let x = 0;
+      let z = 0;
+
+      if (shape === "Square") {
+        // Uniform distribution over square top
+        const half = topRadius * 0.9;
+        x = (Math.random() * 2 - 1) * half;
+        z = (Math.random() * 2 - 1) * half;
+      } else if (shape === "Heart") {
+        // Rejection sample inside heart
+        let valid = false;
+        let attempts = 0;
+        while (!valid && attempts < 20) {
+          attempts++;
+          const rx = (Math.random() * 2 - 1) * topRadius * 0.9;
+          const rz = (Math.random() * 2 - 1) * topRadius * 0.9;
+          if (rx * rx + rz * rz < topRadius * topRadius) {
+            x = rx;
+            z = rz - 0.05;
+            valid = true;
+          }
+        }
+      } else {
+        // Round
+        const r = Math.sqrt(Math.random()) * (topRadius * 0.82);
+        const theta = Math.random() * Math.PI * 2;
+        x = Math.cos(theta) * r;
+        z = Math.sin(theta) * r;
+      }
+
       const rotY = Math.random() * Math.PI;
       const rotZ = (Math.random() - 0.5) * 0.4;
       const color = colors[Math.floor(Math.random() * colors.length)];
       items.push({ x, z, rotY, rotZ, color });
     }
     return items;
-  }, [radius]);
+  }, [topTierY, shape, topRadius]);
 
   return (
-    <group position={[0, topTierY + 0.015, 0]}>
+    <group position={[0, topTierY + 0.02, 0]}>
       {sprinkleData.map((item, i) => (
         <mesh
           key={i}
@@ -114,24 +137,59 @@ function Sprinkles({ topTierY = 2.1, radius = 0.8 }) {
       ))}
     </group>
   );
-}
+});
 
 /**
- * Sculpted Handcrafted Sugar Roses
+ * Shape-Aware Sugar Roses - Exactly 4 Roses on the 4 Corners for Square
  */
-function SugarRoses({ tierY = 1.0, tierRadius = 1.4 }) {
-  const rosePositions = [
-    [tierRadius * 0.85, tierY + 0.06, tierRadius * 0.4],
-    [-tierRadius * 0.85, tierY + 0.06, tierRadius * 0.35],
-    [0, tierY + 0.06, -tierRadius * 0.9],
-  ];
+const SugarRoses = memo(function SugarRoses({
+  shape = "Round",
+  topTierY = 0.95,
+  tierCount = 1,
+  t1Height = 0.95,
+}) {
+  const rosePositions = useMemo(() => {
+    // Height where roses sit (on step if multi-tier, or on top surface if single tier)
+    const yPos = (tierCount >= 2 ? t1Height : topTierY) + 0.05;
+
+    if (shape === "Square") {
+      // EXACTLY 4 ROSES on the 4 corners of the square cake
+      const corner = tierCount >= 2 ? 1.05 : 1.48;
+      return [
+        [corner, yPos, corner],
+        [-corner, yPos, corner],
+        [corner, yPos, -corner],
+        [-corner, yPos, -corner],
+      ];
+    }
+
+    if (shape === "Heart") {
+      // 4 Roses along the romantic lobes, front curve and sides
+      const s = tierCount >= 2 ? 0.75 : 1.1;
+      return [
+        [0.85 * s, yPos, 0.25 * s],
+        [-0.85 * s, yPos, 0.25 * s],
+        [0, yPos, 0.95 * s],
+        [0, yPos, -0.6 * s],
+      ];
+    }
+
+    // Round: 4 symmetrically spaced roses
+    const r = tierCount >= 2 ? 1.45 : 1.75;
+    return [
+      [r * 0.7, yPos, r * 0.7],
+      [-r * 0.7, yPos, r * 0.7],
+      [-r * 0.7, yPos, -r * 0.7],
+      [r * 0.7, yPos, -r * 0.7],
+    ];
+  }, [shape, topTierY, tierCount, t1Height]);
 
   return (
     <group>
       {rosePositions.map((pos, idx) => (
-        <group key={idx} position={pos} scale={0.75}>
+        <group key={idx} position={pos} scale={0.85}>
           {/* Central bud */}
-          <mesh position={[0, 0.08, 0]} castShadow>
+          <mesh position={[0, 0.09, 0]} castShadow>
             <sphereGeometry args={[0.09, 16, 16]} />
             <meshStandardMaterial
               color="#D9435E"
@@ -144,7 +202,7 @@ function SugarRoses({ tierY = 1.0, tierRadius = 1.4 }) {
           {[0, 1.2, 2.4, 3.6, 4.8].map((angle, pIdx) => (
             <mesh
               key={pIdx}
-              position={[Math.cos(angle) * 0.08, 0.06, Math.sin(angle) * 0.08]}
+              position={[Math.cos(angle) * 0.08, 0.07, Math.sin(angle) * 0.08]}
               rotation={[0.3, angle, 0.4]}
               castShadow
             >
@@ -153,8 +211,8 @@ function SugarRoses({ tierY = 1.0, tierRadius = 1.4 }) {
             </mesh>
           ))}
 
-          {/* Mint sugar leaf */}
-          <mesh position={[0.12, 0.02, 0.05]} rotation={[-0.2, 0.5, 0.4]}>
+          {/* Green sugar leaf */}
+          <mesh position={[0.12, 0.03, 0.05]} rotation={[-0.2, 0.5, 0.4]}>
             <coneGeometry args={[0.07, 0.2, 4]} />
             <meshStandardMaterial color="#4A7C59" roughness={0.5} />
           </mesh>
@@ -162,29 +220,90 @@ function SugarRoses({ tierY = 1.0, tierRadius = 1.4 }) {
       ))}
     </group>
   );
-}
+});
 
 /**
- * 24K Edible Gold Leaf Flakes
+ * 24K Edible Gold Leaf Flakes - SYNCHRONIZED WITH TIERS & SHAPES, SITS OUTSIDE WALLS
  */
-function GoldLeaf({ tierHeights = [0.6, 1.6, 2.4], baseRadii = [2.0, 1.4, 0.85] }) {
+const GoldLeaf = memo(function GoldLeaf({
+  tiers = 1,
+  shape = "Round",
+  t1Height = 0.95,
+  t2Height = 0.85,
+  t3Height = 0.75,
+}) {
   const flakes = useMemo(() => {
     const list = [];
-    tierHeights.forEach((y, tIdx) => {
-      const r = baseRadii[tIdx] * 1.008;
-      const count = 5 + tIdx * 2;
+    const tierData = [
+      { y: t1Height * 0.5, hRadius: 1.68, rRadius: 2.08, sHalf: 1.69 },
+      { y: t1Height + t2Height * 0.5, hRadius: 1.18, rRadius: 1.48, sHalf: 1.22 },
+      { y: t1Height + t2Height + t3Height * 0.5, hRadius: 0.75, rRadius: 0.92, sHalf: 0.76 },
+    ];
+
+    const activeTiers = tierData.slice(0, tiers);
+
+    activeTiers.forEach((td, tIdx) => {
+      const count = 10 + tIdx * 2;
+
       for (let i = 0; i < count; i++) {
-        const theta = (i / count) * Math.PI * 2 + (tIdx * 0.8);
-        const x = Math.cos(theta) * r;
-        const z = Math.sin(theta) * r;
-        const flakeY = y + (Math.random() - 0.5) * 0.4;
-        const scale = 0.08 + Math.random() * 0.1;
-        const rotY = Math.atan2(x, z);
+        let x = 0;
+        let z = 0;
+        let rotY = 0;
+
+        if (shape === "Square") {
+          // Place on the 4 outer walls with slight outward offset
+          const half = td.sHalf;
+          const side = i % 4;
+          const posAlong = ((Math.random() - 0.5) * 1.6) * (half * 0.8);
+
+          if (side === 0) {
+            x = posAlong;
+            z = half + 0.02;
+            rotY = 0;
+          } else if (side === 1) {
+            x = half + 0.02;
+            z = posAlong;
+            rotY = Math.PI / 2;
+          } else if (side === 2) {
+            x = posAlong;
+            z = -half - 0.02;
+            rotY = Math.PI;
+          } else {
+            x = -half - 0.02;
+            z = posAlong;
+            rotY = -Math.PI / 2;
+          }
+        } else if (shape === "Heart") {
+          // Outward normal on heart perimeter
+          const theta = (i / count) * Math.PI * 2;
+          const hx = (16 * Math.pow(Math.sin(theta), 3)) / 16;
+          const hy =
+            (13 * Math.cos(theta) -
+              5 * Math.cos(2 * theta) -
+              2 * Math.cos(3 * theta) -
+              Math.cos(4 * theta) +
+              2.5) /
+            16;
+          const scale = td.hRadius * 1.05;
+          x = hx * scale;
+          z = -hy * scale;
+          rotY = Math.atan2(x, z);
+        } else {
+          // Round
+          const theta = (i / count) * Math.PI * 2 + tIdx * 0.7;
+          x = Math.cos(theta) * td.rRadius;
+          z = Math.sin(theta) * td.rRadius;
+          rotY = Math.atan2(x, z);
+        }
+
+        const flakeY = td.y + (Math.random() - 0.5) * 0.35;
+        const scale = 0.09 + Math.random() * 0.07;
         list.push({ x, y: flakeY, z, rotY, scale });
       }
     });
+
     return list;
-  }, [tierHeights, baseRadii]);
+  }, [tiers, shape, t1Height, t2Height, t3Height]);
 
   return (
     <group>
@@ -192,79 +311,174 @@ function GoldLeaf({ tierHeights = [0.6, 1.6, 2.4], baseRadii = [2.0, 1.4, 0.85] 
         <mesh
           key={i}
           position={[f.x, f.y, f.z]}
-          rotation={[0.2, f.rotY, (Math.random() - 0.5) * 0.5]}
+          rotation={[0.1, f.rotY, (Math.random() - 0.5) * 0.6]}
         >
           <planeGeometry args={[f.scale, f.scale * 1.2]} />
           <meshStandardMaterial
-            color="#C5A059"
-            metalness={0.9}
-            roughness={0.18}
+            color="#D4AF37"
+            emissive="#4A3B12"
+            emissiveIntensity={0.3}
+            metalness={0.92}
+            roughness={0.15}
             side={THREE.DoubleSide}
           />
         </mesh>
       ))}
     </group>
   );
-}
+});
 
 /**
- * Satin Fondant Drapery Ribbon (Smooth ribbon band, no protruding half-torus loop)
+ * Shape-Aware Silver Pearls along base of all visible tiers (PROUDLY VISIBLE OUTSIDE WALLS)
  */
-function FondantDrape({ tierY = 1.15, radius = 1.42 }) {
-  return (
-    <group position={[0, tierY - 0.1, 0]}>
-      {/* Elegant satin ribbon sash wrapping gently along the tier contour */}
-      <mesh position={[0, 0, 0]} castShadow>
-        <cylinderGeometry args={[radius + 0.02, radius + 0.025, 0.12, 48, 1, true]} />
-        <meshStandardMaterial
-          color="#FFFBF2"
-          roughness={0.25}
-          metalness={0.05}
-          side={THREE.DoubleSide}
-        />
-      </mesh>
-    </group>
-  );
-}
+const SilverPearls = memo(function SilverPearls({
+  tiers = 1,
+  shape = "Square",
+  t1Height = 0.95,
+  t2Height = 0.85,
+}) {
+  const pearlsList = useMemo(() => {
+    const all = [];
 
-/**
- * French Silver Dragee Pearls lining tier bases
- */
-function SilverPearls({ tierBaseY = 0.02, radius = 2.02 }) {
-  const pearls = useMemo(() => {
-    const list = [];
-    const count = Math.floor(radius * 24);
-    for (let i = 0; i < count; i++) {
-      const angle = (i / count) * Math.PI * 2;
-      list.push([Math.cos(angle) * radius, tierBaseY, Math.sin(angle) * radius]);
+    const getPerimeterForTier = (tIdx, baseY) => {
+      const pts = [];
+
+      if (shape === "Square") {
+        // Size: T1=3.2 (half 1.6), T2=2.25 (half 1.125), T3=1.35 (half 0.675)
+        // Outer placement offset so pearls sit outside the bevel:
+        const half = tIdx === 0 ? 1.70 : tIdx === 1 ? 1.22 : 0.78;
+        const countPerSide = tIdx === 0 ? 12 : tIdx === 1 ? 8 : 6;
+
+        for (let side = 0; side < 4; side++) {
+          for (let i = 0; i < countPerSide; i++) {
+            const t = (i / countPerSide) * 2 - 1; // -1 to 1
+            const coord = t * (half - 0.1);
+            if (side === 0) pts.push([coord, baseY, half]);
+            else if (side === 1) pts.push([half, baseY, coord]);
+            else if (side === 2) pts.push([coord, baseY, -half]);
+            else pts.push([-half, baseY, coord]);
+          }
+        }
+      } else if (shape === "Heart") {
+        const scale = (tIdx === 0 ? 1.95 : tIdx === 1 ? 1.35 : 0.85) * 1.05;
+        const count = tIdx === 0 ? 48 : tIdx === 1 ? 34 : 22;
+        for (let i = 0; i < count; i++) {
+          const t = (i / count) * Math.PI * 2;
+          const x = (16 * Math.pow(Math.sin(t), 3) / 16) * scale;
+          const y = ((13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t) + 2.5) / 16) * scale;
+          pts.push([x, baseY, -y]);
+        }
+      } else {
+        // Round
+        const r = tIdx === 0 ? 2.08 : tIdx === 1 ? 1.48 : 0.92;
+        const count = tIdx === 0 ? 48 : tIdx === 1 ? 34 : 22;
+        for (let i = 0; i < count; i++) {
+          const a = (i / count) * Math.PI * 2;
+          pts.push([Math.cos(a) * r, baseY, Math.sin(a) * r]);
+        }
+      }
+
+      return pts;
+    };
+
+    // Tier 1 Base
+    all.push(...getPerimeterForTier(0, 0.035));
+
+    // Tier 2 Base
+    if (tiers >= 2) {
+      all.push(...getPerimeterForTier(1, t1Height + 0.035));
     }
-    return list;
-  }, [radius, tierBaseY]);
+
+    // Tier 3 Base
+    if (tiers >= 3) {
+      all.push(...getPerimeterForTier(2, t1Height + t2Height + 0.035));
+    }
+
+    return all;
+  }, [tiers, shape, t1Height, t2Height]);
 
   return (
     <group>
-      {pearls.map((pos, idx) => (
+      {pearlsList.map((pos, idx) => (
         <mesh key={idx} position={pos}>
-          <sphereGeometry args={[0.035, 12, 12]} />
+          <sphereGeometry args={[0.042, 12, 12]} />
           <meshStandardMaterial
-            color="#E0E0E0"
-            metalness={0.95}
-            roughness={0.1}
+            color="#EFEFEF"
+            metalness={0.96}
+            roughness={0.08}
           />
         </mesh>
       ))}
     </group>
   );
-}
+});
+
+/**
+ * Shape-Aware Satin Fondant Ribbon hugging the outer walls
+ */
+const FondantRibbon = memo(function FondantRibbon({
+  shape = "Round",
+  tierY = 0.5,
+}) {
+  const beads = useMemo(() => {
+    const list = [];
+    if (shape === "Square") {
+      const half = 1.685;
+      const count = 48;
+      for (let i = 0; i < count; i++) {
+        const side = Math.floor(i / 12);
+        const t = ((i % 12) / 12) * 2 - 1;
+        const coord = t * (half - 0.1);
+        if (side === 0) list.push([coord, tierY, half]);
+        else if (side === 1) list.push([half, tierY, coord]);
+        else if (side === 2) list.push([coord, tierY, -half]);
+        else list.push([-half, tierY, coord]);
+      }
+    } else if (shape === "Heart") {
+      const scale = 1.95 * 1.04;
+      const count = 48;
+      for (let i = 0; i < count; i++) {
+        const t = (i / count) * Math.PI * 2;
+        const x = (16 * Math.pow(Math.sin(t), 3) / 16) * scale;
+        const y = ((13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t) + 2.5) / 16) * scale;
+        list.push([x, tierY, -y]);
+      }
+    } else {
+      const r = 2.065;
+      const count = 48;
+      for (let i = 0; i < count; i++) {
+        const a = (i / count) * Math.PI * 2;
+        list.push([Math.cos(a) * r, tierY, Math.sin(a) * r]);
+      }
+    }
+    return list;
+  }, [shape, tierY]);
+
+  return (
+    <group>
+      {beads.map((pos, idx) => (
+        <mesh key={idx} position={pos}>
+          <sphereGeometry args={[0.035, 10, 8]} />
+          <meshStandardMaterial
+            color="#FFFBF2"
+            roughness={0.25}
+            metalness={0.05}
+          />
+        </mesh>
+      ))}
+    </group>
+  );
+});
 
 export const ActiveDecorations = memo(function ActiveDecorations({
   decorations = [],
   topTierY = 2.2,
   topRadius = 0.85,
   tierCount = 1,
-  midTierY = 1.15,
-  midRadius = 1.4,
-  baseRadius = 2.0,
+  shape = "Round",
+  t1Height = 0.95,
+  t2Height = 0.85,
+  t3Height = 0.75,
 }) {
   const hasCandles = decorations.includes("candles");
   const hasSprinkles = decorations.includes("sprinkles");
@@ -275,15 +489,50 @@ export const ActiveDecorations = memo(function ActiveDecorations({
 
   return (
     <group>
-      {hasCandles && <Candles topTierY={topTierY} topTierRadius={topRadius} />}
-      {hasSprinkles && <Sprinkles topTierY={topTierY} radius={topRadius} />}
-      {hasSugarRoses && <SugarRoses tierY={tierCount >= 2 ? midTierY : topTierY} tierRadius={tierCount >= 2 ? midRadius : topRadius} />}
-      {hasGoldLeaf && <GoldLeaf />}
-      {hasFondantDrape && <FondantDrape tierY={tierCount >= 2 ? midTierY : topTierY} radius={tierCount >= 2 ? midRadius : topRadius} />}
-      {hasSilverPearls && <SilverPearls tierBaseY={0.02} radius={baseRadius + 0.02} />}
-      {hasSilverPearls && tierCount >= 2 && <SilverPearls tierBaseY={midTierY - 0.45} radius={midRadius + 0.02} />}
-      {hasSilverPearls && tierCount >= 3 && <SilverPearls tierBaseY={topTierY - 0.45} radius={topRadius + 0.02} />}
+      {hasCandles && <Candles topTierY={topTierY} />}
+
+      {hasSprinkles && (
+        <Sprinkles
+          topTierY={topTierY}
+          shape={shape}
+          topRadius={topRadius}
+        />
+      )}
+
+      {hasSugarRoses && (
+        <SugarRoses
+          shape={shape}
+          topTierY={topTierY}
+          tierCount={tierCount}
+          t1Height={t1Height}
+        />
+      )}
+
+      {hasGoldLeaf && (
+        <GoldLeaf
+          tiers={tierCount}
+          shape={shape}
+          t1Height={t1Height}
+          t2Height={t2Height}
+          t3Height={t3Height}
+        />
+      )}
+
+      {hasFondantDrape && (
+        <FondantRibbon
+          shape={shape}
+          tierY={tierCount >= 2 ? t1Height - 0.2 : t1Height * 0.5}
+        />
+      )}
+
+      {hasSilverPearls && (
+        <SilverPearls
+          tiers={tierCount}
+          shape={shape}
+          t1Height={t1Height}
+          t2Height={t2Height}
+        />
+      )}
     </group>
   );
 });
-
