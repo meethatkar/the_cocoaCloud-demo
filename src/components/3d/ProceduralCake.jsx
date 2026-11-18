@@ -7,6 +7,7 @@ import * as THREE from "three";
 import { ActiveDecorations } from "./Decorations";
 import { ButtercreamShader } from "./shaders/buttercreamShader";
 import { DripShader } from "./shaders/dripShader";
+import { whippedCreamColorNode } from "./shaders/whippedCreamTSL";
 import { PipedBorderRing, PipedPathBorder, SculptedDripRing, FrenchMacaron } from "./PipedBorders";
 
 /**
@@ -20,7 +21,9 @@ function ProceduralCakeComponent({ config }) {
     shape = "Round",
     flavorColor = "#F3E5AB",
     dripColor = null,
-    customText = "Happy Birthday!",
+    cardStyle = "bottom_card", // 'bottom_card' | 'top_card'
+    greetingText = "Happy Birthday!",
+    pipedMessage = "",
     decorations = [],
   } = config;
 
@@ -434,42 +437,46 @@ function ProceduralCakeComponent({ config }) {
           </>
         )}
 
-        {/* Front Calligraphy Inscription Plaque */}
-        <group
-          position={
-            shape === "Square"
-              ? [0, t1Y, 1.72]
-              : shape === "Heart"
-              ? [0.42, t1Y, 1.34]
-              : [0, t1Y, 2.08]
-          }
-          rotation={
-            shape === "Heart"
-              ? [0, 0.893, 0]
-              : [0, 0, 0]
-          }
-        >
-          <mesh castShadow receiveShadow>
-            <boxGeometry args={[shape === "Heart" ? 1.22 : 1.5, 0.44, 0.04]} />
-            <meshStandardMaterial color="#2C1E18" roughness={0.25} metalness={0.2} />
-          </mesh>
-
-          <mesh position={[0, 0, 0.021]}>
-            <boxGeometry args={[shape === "Heart" ? 1.26 : 1.54, 0.48, 0.015]} />
-            <meshStandardMaterial color="#C5A059" roughness={0.25} metalness={0.85} />
-          </mesh>
-
-          <Text
-            position={[0, 0, 0.035]}
-            fontSize={shape === "Heart" ? 0.095 : 0.11}
-            color="#FAF6F0"
-            anchorX="center"
-            anchorY="middle"
-            maxWidth={shape === "Heart" ? 1.15 : 1.4}
+        {/* Option 1: Front Calligraphy Inscription Plaque (Bottom Card) */}
+        {cardStyle === "bottom_card" && (
+          <group
+            position={
+              shape === "Square"
+                ? [0, t1Y, 1.72]
+                : shape === "Heart"
+                ? [0.42, t1Y, 1.34]
+                : [0, t1Y, 2.08]
+            }
+            rotation={
+              shape === "Heart"
+                ? [0, 0.893, 0]
+                : [0, 0, 0]
+            }
           >
-            {customText || "Cocoa & Cloud"}
-          </Text>
-        </group>
+            <mesh castShadow receiveShadow>
+              <boxGeometry args={[shape === "Heart" ? 1.22 : 1.5, 0.44, 0.04]} />
+              <meshStandardMaterial color="#2C1E18" roughness={0.25} metalness={0.2} />
+            </mesh>
+
+            <mesh position={[0, 0, 0.021]}>
+              <boxGeometry args={[shape === "Heart" ? 1.26 : 1.54, 0.48, 0.015]} />
+              <meshStandardMaterial color="#C5A059" roughness={0.25} metalness={0.85} />
+            </mesh>
+
+            <Text
+              position={[0, 0, 0.035]}
+              font="/fonts/LuxurySerif.ttf"
+              fontSize={shape === "Heart" ? 0.095 : 0.11}
+              color="#FAF6F0"
+              anchorX="center"
+              anchorY="middle"
+              maxWidth={shape === "Heart" ? 1.15 : 1.4}
+              letterSpacing={0.04}
+            >
+              {greetingText || "Happy Birthday!"}
+            </Text>
+          </group>
+        )}
       </group>
 
       {/* ================= TIER 2 (MIDDLE) ================= */}
@@ -708,6 +715,163 @@ function ProceduralCakeComponent({ config }) {
           scale={0.85}
         />
       </group>
+
+      {/* ================= TOP TIER MESSAGE INSCRIPTIONS (Top Card & Whipped Cream) ================= */}
+      {/* Option 2: Top Acrylic Pick Card - Positioned at right side and well behind candles for clear spacing */}
+      {cardStyle === "top_card" && (
+        <group
+          position={[
+            shape === "Heart" ? 0.35 : 0.45,
+            topTierY + (shape === "Square" || shape === "Heart" ? 0.05 : 0.0),
+            shape === "Heart" ? -0.82 : -0.92,
+          ]}
+          rotation={[0.06, -0.1, 0.01]}
+        >
+          {/* Dual Clear Food-Grade Acrylic Pick Stems inserted into cake */}
+          <mesh position={[-0.26, 0.22, 0]} castShadow>
+            <cylinderGeometry args={[0.015, 0.015, 0.56, 12]} />
+            <meshPhysicalMaterial
+              color="#FFFFFF"
+              transmission={0.88}
+              opacity={0.8}
+              transparent
+              roughness={0.1}
+              ior={1.49}
+            />
+          </mesh>
+          <mesh position={[0.26, 0.22, 0]} castShadow>
+            <cylinderGeometry args={[0.015, 0.015, 0.56, 12]} />
+            <meshPhysicalMaterial
+              color="#FFFFFF"
+              transmission={0.88}
+              opacity={0.8}
+              transparent
+              roughness={0.1}
+              ior={1.49}
+            />
+          </mesh>
+
+          {/* Elevated Acrylic Topper Plaque */}
+          <group position={[0, 0.5, 0]}>
+            {/* Elegant Outer Card Plate */}
+            <mesh castShadow receiveShadow>
+              <boxGeometry args={[1.22, 0.42, 0.03]} />
+              <meshStandardMaterial
+                color="#2C1E18"
+                roughness={0.2}
+                metalness={0.15}
+              />
+            </mesh>
+
+            {/* Burnished 24K Gold Filigree Border */}
+            <mesh position={[0, 0, 0.018]}>
+              <boxGeometry args={[1.26, 0.46, 0.01]} />
+              <meshStandardMaterial
+                color="#C5A059"
+                roughness={0.25}
+                metalness={0.85}
+              />
+            </mesh>
+
+            {/* Fixed Greeting Inscription */}
+            <Text
+              position={[0, 0, 0.03]}
+              font="/fonts/LuxurySerif.ttf"
+              fontSize={0.098}
+              color="#FAF6F0"
+              anchorX="center"
+              anchorY="middle"
+              maxWidth={1.15}
+              letterSpacing={0.04}
+            >
+              {greetingText || "Happy Birthday!"}
+            </Text>
+          </group>
+        </group>
+      )}
+
+      {/* Option 3: Hand-Piped Whipped Cream / Syrup Name - Positioned cleanly in front quadrant */}
+      {pipedMessage && pipedMessage.trim().length > 0 && (
+        <group
+          position={[
+            shape === "Heart" ? 0 : 0,
+            topTierY + (shape === "Square" || shape === "Heart" ? 0.065 : 0.012),
+            shape === "Heart" ? 0.65 : 0.85,
+          ]}
+          rotation={[-Math.PI / 2, 0, 0]}
+        >
+          {/* Base ambient shadow under the piped cream */}
+          <Text
+            position={[0, -0.014, 0.002]}
+            font="/fonts/ScriptCalligraphy.otf"
+            fontSize={
+              shape === "Heart"
+                ? pipedMessage.length > 12
+                  ? 0.16
+                  : 0.22
+                : pipedMessage.length > 12
+                ? 0.18
+                : 0.24
+            }
+            color="#1E140F"
+            fillOpacity={0.4}
+            anchorX="center"
+            anchorY="middle"
+            maxWidth={shape === "Heart" ? 1.4 : shape === "Square" ? 1.6 : 1.7}
+            letterSpacing={0.02}
+          >
+            {pipedMessage}
+          </Text>
+
+          {/* Realistic round cursive whipped cream body */}
+          <Text
+            position={[0, 0, 0.016]}
+            font="/fonts/ScriptCalligraphy.otf"
+            fontSize={
+              shape === "Heart"
+                ? pipedMessage.length > 12
+                  ? 0.16
+                  : 0.22
+                : pipedMessage.length > 12
+                ? 0.18
+                : 0.24
+            }
+            color="#241711"
+            outlineWidth={0.012}
+            outlineColor="#3E271E"
+            outlineOpacity={0.85}
+            anchorX="center"
+            anchorY="middle"
+            maxWidth={shape === "Heart" ? 1.4 : shape === "Square" ? 1.6 : 1.7}
+            letterSpacing={0.02}
+          >
+            {pipedMessage}
+          </Text>
+
+          {/* Wet glaze specular lipid highlight layer (dairy sheen) */}
+          <Text
+            position={[0.005, 0.007, 0.024]}
+            font="/fonts/ScriptCalligraphy.otf"
+            fontSize={
+              shape === "Heart"
+                ? pipedMessage.length > 12
+                  ? 0.155
+                  : 0.215
+                : pipedMessage.length > 12
+                ? 0.175
+                : 0.235
+            }
+            color="#C86D51"
+            fillOpacity={0.7}
+            anchorX="center"
+            anchorY="middle"
+            maxWidth={shape === "Heart" ? 1.4 : shape === "Square" ? 1.6 : 1.7}
+            letterSpacing={0.02}
+          >
+            {pipedMessage}
+          </Text>
+        </group>
+      )}
 
       {/* ================= FULLY SYNCHRONIZED ARTISANAL DECORATIONS ================= */}
       <ActiveDecorations

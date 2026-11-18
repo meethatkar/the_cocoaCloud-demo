@@ -12,7 +12,9 @@ export function useCakeConfig() {
   const setShape = useCakeStore((state) => state.setShape);
   const setFlavorColor = useCakeStore((state) => state.setFlavorColor);
   const setDripColor = useCakeStore((state) => state.setDripColor);
-  const setCustomText = useCakeStore((state) => state.setCustomText);
+  const setCardStyle = useCakeStore((state) => state.setCardStyle);
+  const setGreetingText = useCakeStore((state) => state.setGreetingText);
+  const setPipedMessage = useCakeStore((state) => state.setPipedMessage);
   const setWeight = useCakeStore((state) => state.setWeight);
   const toggleDecoration = useCakeStore((state) => state.toggleDecoration);
   const loadPreset = useCakeStore((state) => state.loadPreset);
@@ -38,7 +40,9 @@ export function useCakeConfig() {
     setShape,
     setFlavorColor,
     setDripColor,
-    setCustomText,
+    setCardStyle,
+    setGreetingText,
+    setPipedMessage,
     setWeight,
     toggleDecoration,
     loadPreset,

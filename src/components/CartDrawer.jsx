@@ -128,9 +128,17 @@ export function CartDrawer() {
                           • {item.config.tiers} Tier(s) • {item.config.shape} •{" "}
                           {item.config.weight} kg
                         </div>
-                        {item.config.customText && (
+                        {item.config.greetingText && (
                           <div className="italic text-[#2C1E18] font-serif-editorial">
-                            Plaque: “{item.config.customText}”
+                            {item.config.cardStyle === "top_card"
+                              ? "Top Pick Topper: "
+                              : "Bottom Plaque: "}
+                            “{item.config.greetingText}”
+                          </div>
+                        )}
+                        {item.config.pipedMessage && (
+                          <div className="text-[11px] text-[#C86D51] font-medium">
+                            Whipped Name: “{item.config.pipedMessage}”
                           </div>
                         )}
                         {item.config.decorations.length > 0 && (

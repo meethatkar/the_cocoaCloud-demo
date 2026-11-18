@@ -10,7 +10,9 @@ const initialConfig = {
   shape: "Round",
   flavorColor: "#F3E5AB",
   dripColor: "#FF69B4",
-  customText: "Happy Birthday!",
+  cardStyle: "bottom_card", // 'bottom_card' | 'top_card'
+  greetingText: "Happy Birthday!",
+  pipedMessage: "", // optional custom piped cream message on top
   decorations: ["sprinkles", "candles"],
   weight: 1.5,
 };
@@ -76,9 +78,23 @@ export const useCakeStore = create((set, get) => ({
     }));
   },
 
-  setCustomText: (customText) => {
+  setCardStyle: (cardStyle) => {
     set((state) => ({
-      config: { ...state.config, customText },
+      config: { ...state.config, cardStyle },
+      selectedPresetId: null,
+    }));
+  },
+
+  setGreetingText: (greetingText) => {
+    set((state) => ({
+      config: { ...state.config, greetingText },
+      selectedPresetId: null,
+    }));
+  },
+
+  setPipedMessage: (pipedMessage) => {
+    set((state) => ({
+      config: { ...state.config, pipedMessage },
       selectedPresetId: null,
     }));
   },

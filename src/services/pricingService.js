@@ -22,9 +22,12 @@ export function calculateCakePrice(config) {
     total += 350;
   }
 
-  // Custom calligraphy inscription plaque
-  if (config.customText && config.customText.trim().length > 0) {
-    total += 250;
+  // Custom calligraphy inscription card or piped cream
+  if (config.greetingText && config.greetingText.trim().length > 0) {
+    total += 200;
+  }
+  if (config.pipedMessage && config.pipedMessage.trim().length > 0) {
+    total += 150;
   }
 
   // Decorations

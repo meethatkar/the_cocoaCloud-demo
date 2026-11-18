@@ -21,7 +21,9 @@ export function CakeBuilderSection() {
     setShape,
     setFlavorColor,
     setDripColor,
-    setCustomText,
+    setCardStyle,
+    setGreetingText,
+    setPipedMessage,
     setWeight,
     toggleDecoration,
     resetConfig,
@@ -114,8 +116,12 @@ export function CakeBuilderSection() {
 
           {/* Step 5: Custom Plaque Text */}
           <PlaqueTextInput
-            customText={config.customText}
-            onChange={setCustomText}
+            cardStyle={config.cardStyle}
+            greetingText={config.greetingText}
+            pipedMessage={config.pipedMessage}
+            onCardStyleChange={setCardStyle}
+            onGreetingTextChange={setGreetingText}
+            onPipedMessageChange={setPipedMessage}
           />
 
           {/* Step 6: Decorations & Florals */}
