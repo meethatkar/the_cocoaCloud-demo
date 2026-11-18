@@ -3,20 +3,21 @@
 import React, { memo } from "react";
 
 /**
- * High-end studio lighting setup for luxury confectionery visualization.
- * Uses soft directional shadows, warm ambient bounce, and rim light for glaze reflections.
+ * Parisian Pâtisserie Studio Lighting Rig.
+ * Calibrated specifically for custom GLSL subsurface scattering (SSS)
+ * and glossy ganache Fresnel highlights.
  */
 function StudioLightingComponent() {
   return (
     <>
       {/* Warm ambient base */}
-      <ambientLight intensity={0.75} color="#FFF8F0" />
+      <ambientLight intensity={0.8} color="#FFF8F0" />
 
-      {/* Key Light: Casts soft realistic bakery studio shadows */}
+      {/* Key Light: High-precision softbox with realistic soft shadows */}
       <directionalLight
-        position={[6, 8, 5]}
-        intensity={1.8}
-        color="#FFF6E8"
+        position={[5.5, 7.5, 4.5]}
+        intensity={2.1}
+        color="#FFF9F2"
         castShadow
         shadow-mapSize-width={2048}
         shadow-mapSize-height={2048}
@@ -29,17 +30,16 @@ function StudioLightingComponent() {
         shadow-bias={-0.0001}
       />
 
-      {/* Fill Light: Softens dark crevices without casting harsh secondary shadows */}
-      <directionalLight position={[-6, 4, -4]} intensity={0.8} color="#E8EEFF" />
+      {/* Fill Light: Soft champagne bounce to soften shaded crevices */}
+      <directionalLight position={[-5.5, 4.0, -3.5]} intensity={0.75} color="#F1E8DC" />
 
-      {/* Rim Light / Backlight: Creates shimmering edge highlight on glaze and gold leaf */}
-      <directionalLight position={[0, 6, -6]} intensity={1.2} color="#D4AF37" />
+      {/* Rim Light: Burnished gold backlight grazing icing edges and drips */}
+      <directionalLight position={[0, 6.0, -5.5]} intensity={1.35} color="#C5A059" />
 
-      {/* Subtle bottom bounce simulating marble stand reflection */}
-      <pointLight position={[0, -1.5, 2]} intensity={0.4} color="#FFF2DB" />
+      {/* Warm upward bounce from the alabaster pedestal */}
+      <pointLight position={[0, -0.8, 1.8]} intensity={0.45} color="#FAF6F0" />
     </>
   );
 }
 
 export const StudioLighting = memo(StudioLightingComponent);
-
