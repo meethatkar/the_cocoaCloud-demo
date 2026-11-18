@@ -112,6 +112,8 @@ export const ButtercreamShader = {
   `,
 
   fragmentShader: /* glsl */ `
+    precision mediump float;
+
     uniform vec3 uBaseColor;
     uniform float uRoughness;
     uniform float uTime;

@@ -37,6 +37,8 @@ export const DripShader = {
   `,
 
   fragmentShader: /* glsl */ `
+    precision mediump float;
+
     uniform vec3 uColor;
     uniform float uTime;
     uniform vec3 uLightPos;
@@ -65,29 +67,26 @@ export const DripShader = {
       // 2. Strong Fresnel reflection for liquid syrup viscosity
       float fresnel = pow(1.0 - NdotV, 3.5);
 
-      // 3. Liquid gold metallic vs rich chocolate/fruit ganache
-      vec3 base = uColor;
-      if (uIsGold > 0.5) {
-        // Metallic burnished gold response
-        vec3 goldHighlights = mix(vec3(1.0, 0.95, 0.75), base, 0.2);
-        vec3 ambientGold = base * 0.45;
-        vec3 diffGold = base * NdotL * 0.9;
-        vec3 specGold = goldHighlights * (spec + softSpec * 1.2);
-        vec3 rimGold = goldHighlights * fresnel * 0.9;
-        gl_FragColor = vec4(ambientGold + diffGold + specGold + rimGold, 1.0);
-        return;
-      }
+      // 3. Branchless metallic gold vs rich chocolate/fruit ganache using step & mix
+      float isGoldFlag = step(0.5, uIsGold);
 
-      // Rich chocolate / fruit ganache
-      // Thickness gradient: top rim of drip is slightly thinner/translucent, droplet bottom is deep
+      // Gold Response
+      vec3 goldHighlights = mix(vec3(1.0, 0.95, 0.75), uColor, 0.2);
+      vec3 ambientGold = uColor * 0.45;
+      vec3 diffGold = uColor * NdotL * 0.9;
+      vec3 specGold = goldHighlights * (spec + softSpec * 1.2);
+      vec3 rimGold = goldHighlights * fresnel * 0.9;
+      vec3 goldFinal = ambientGold + diffGold + specGold + rimGold;
+
+      // Ganache Response
       float thickness = smoothstep(0.0, 0.6, vUv.y);
-      vec3 subsurfaceGlaze = mix(base * 1.3, base, thickness);
-
+      vec3 subsurfaceGlaze = mix(uColor * 1.3, uColor, thickness);
       vec3 diffuse = subsurfaceGlaze * (NdotL * 0.85 + 0.25);
       vec3 specular = uLightColor * (spec + softSpec);
       vec3 rim = vec3(1.0, 0.96, 0.9) * fresnel * 0.65;
+      vec3 ganacheFinal = diffuse + specular + rim;
 
-      vec3 finalColor = diffuse + specular + rim;
+      vec3 finalColor = mix(ganacheFinal, goldFinal, isGoldFlag);
       gl_FragColor = vec4(finalColor, 1.0);
     }
   `,

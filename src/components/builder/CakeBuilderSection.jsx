@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { CakeCanvas } from "../3d/CakeCanvas";
+import dynamic from "next/dynamic";
 import { TierSelector } from "./TierSelector";
 import { ShapeSelector } from "./ShapeSelector";
 import { FlavorPalette } from "./FlavorPalette";
@@ -11,6 +11,22 @@ import { DecorationsSelector } from "./DecorationsSelector";
 import { WeightAndPriceCard } from "./WeightAndPriceCard";
 import { useCakeConfig } from "@/hooks/useCakeConfig";
 import { Sparkles, Compass, ShoppingBag, Scale } from "lucide-react";
+
+// Dynamic import with SSR disabled for Three.js WebGL canvas isolation
+const CakeCanvas = dynamic(
+  () => import("../3d/CakeCanvas").then((mod) => mod.CakeCanvas),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="relative w-full h-full min-h-[460px] lg:min-h-[640px] 2xl:min-h-[860px] bg-gradient-to-b from-[#FAF6F0] via-[#F4ECE1] to-[#EBE0D2] overflow-hidden rounded-[32px] border border-[#C5A059]/35 flex flex-col items-center justify-center p-8">
+        <div className="w-14 h-14 rounded-full border-2 border-[#C5A059]/30 border-t-[#C86D51] animate-spin mb-4" />
+        <span className="text-xs uppercase tracking-widest text-[#2C1E18] font-medium font-serif-editorial">
+          Initializing 3D Atelier...
+        </span>
+      </div>
+    ),
+  }
+);
 
 export function CakeBuilderSection() {
   const {

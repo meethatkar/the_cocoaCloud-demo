@@ -4,6 +4,7 @@ import React, { Suspense, memo } from "react";
 import { Canvas } from "@react-three/fiber";
 import * as THREE from "three";
 import { CakeScene } from "./CakeScene";
+import { WebGLErrorBoundary } from "./WebGLErrorBoundary";
 import { useCanvasConfig } from "@/hooks/useCakeConfig";
 import { RotateCw, Sparkles } from "lucide-react";
 
@@ -26,28 +27,29 @@ function CakeCanvasComponent() {
     useCanvasConfig();
 
   return (
-    <div className="relative w-full h-full min-h-[460px] lg:min-h-[640px] bg-gradient-to-b from-[#FAF6F0] via-[#F4ECE1] to-[#EBE0D2] overflow-hidden rounded-[32px] border border-[#C5A059]/35 shadow-[0_12px_40px_-15px_rgba(44,30,24,0.12)]">
-      {/* 3D WebGL Canvas */}
-      <Canvas
-        shadows
-        camera={{ position: [0, 2.0, 5.8], fov: 42 }}
-        gl={{
-          antialias: true,
-          alpha: true,
-          powerPreference: "high-performance",
-          toneMapping: THREE.ACESFilmicToneMapping,
-          toneMappingExposure: 1.05,
-        }}
-        dpr={[1, 2]}
-      >
-        <Suspense fallback={null}>
-          <CakeScene
-            config={config}
-            autoRotate={autoRotate}
-            viewAngle={viewAngle}
-          />
-        </Suspense>
-      </Canvas>
+    <WebGLErrorBoundary>
+      <div className="relative w-full h-full min-h-[460px] lg:min-h-[640px] bg-gradient-to-b from-[#FAF6F0] via-[#F4ECE1] to-[#EBE0D2] overflow-hidden rounded-[32px] border border-[#C5A059]/35 shadow-[0_12px_40px_-15px_rgba(44,30,24,0.12)]">
+        {/* 3D WebGL Canvas */}
+        <Canvas
+          shadows
+          camera={{ position: [0, 2.0, 5.8], fov: 42 }}
+          gl={{
+            antialias: true,
+            alpha: true,
+            powerPreference: "high-performance",
+            toneMapping: THREE.ACESFilmicToneMapping,
+            toneMappingExposure: 1.05,
+          }}
+          dpr={[1, 2]}
+        >
+          <Suspense fallback={null}>
+            <CakeScene
+              config={config}
+              autoRotate={autoRotate}
+              viewAngle={viewAngle}
+            />
+          </Suspense>
+        </Canvas>
 
       {/* Floating 3D Viewport Controls */}
       <div className="absolute bottom-5 left-5 right-5 flex items-center justify-between pointer-events-none z-10">
@@ -112,6 +114,7 @@ function CakeCanvasComponent() {
         <span>Drag to rotate • Pinch to zoom</span>
       </div>
     </div>
+  </WebGLErrorBoundary>
   );
 }
 
