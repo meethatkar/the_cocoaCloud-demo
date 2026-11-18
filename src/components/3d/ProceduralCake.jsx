@@ -796,77 +796,77 @@ function ProceduralCakeComponent({ config }) {
           position={[
             shape === "Heart" ? 0 : 0,
             topTierY + (shape === "Square" || shape === "Heart" ? 0.065 : 0.012),
-            shape === "Heart" ? 0.65 : 0.85,
+            shape === "Heart" ? 0.62 : 0.78,
           ]}
           rotation={[-Math.PI / 2, 0, 0]}
         >
-          {/* Base ambient shadow under the piped cream */}
+          {/* Layer 1: Base ambient contact shadow cast by thick cream onto frosting */}
           <Text
-            position={[0, -0.014, 0.002]}
-            font="/fonts/ScriptCalligraphy.otf"
+            position={[0, -0.018, 0.003]}
+            font="/fonts/DancingScript.ttf"
             fontSize={
               shape === "Heart"
                 ? pipedMessage.length > 12
-                  ? 0.16
-                  : 0.22
+                  ? 0.24
+                  : 0.32
                 : pipedMessage.length > 12
-                ? 0.18
-                : 0.24
+                ? 0.28
+                : 0.36
             }
-            color="#1E140F"
-            fillOpacity={0.4}
+            color="#2A1B14"
+            fillOpacity={0.35}
             anchorX="center"
             anchorY="middle"
-            maxWidth={shape === "Heart" ? 1.4 : shape === "Square" ? 1.6 : 1.7}
-            letterSpacing={0.02}
+            maxWidth={shape === "Heart" ? 1.6 : shape === "Square" ? 1.8 : 2.0}
+            letterSpacing={0.03}
           >
             {pipedMessage}
           </Text>
 
-          {/* Realistic round cursive whipped cream body */}
+          {/* Layer 2: Main Tubular Cream / Ganache Bead Body (Rich chocolate or berry ganache piping) */}
           <Text
-            position={[0, 0, 0.016]}
-            font="/fonts/ScriptCalligraphy.otf"
+            position={[0, 0, 0.018]}
+            font="/fonts/DancingScript.ttf"
             fontSize={
               shape === "Heart"
                 ? pipedMessage.length > 12
-                  ? 0.16
-                  : 0.22
+                  ? 0.24
+                  : 0.32
                 : pipedMessage.length > 12
-                ? 0.18
-                : 0.24
+                ? 0.28
+                : 0.36
             }
-            color="#241711"
-            outlineWidth={0.012}
-            outlineColor="#3E271E"
-            outlineOpacity={0.85}
+            color="#2C1810"
+            outlineWidth={0.014}
+            outlineColor="#4A2A1D"
+            outlineOpacity={0.9}
             anchorX="center"
             anchorY="middle"
-            maxWidth={shape === "Heart" ? 1.4 : shape === "Square" ? 1.6 : 1.7}
-            letterSpacing={0.02}
+            maxWidth={shape === "Heart" ? 1.6 : shape === "Square" ? 1.8 : 2.0}
+            letterSpacing={0.03}
           >
             {pipedMessage}
           </Text>
 
-          {/* Wet glaze specular lipid highlight layer (dairy sheen) */}
+          {/* Layer 3: Specular Dairy Lipid Glaze Sheen (Highlights on top ridge of piping stroke) */}
           <Text
-            position={[0.005, 0.007, 0.024]}
-            font="/fonts/ScriptCalligraphy.otf"
+            position={[0.004, 0.008, 0.026]}
+            font="/fonts/DancingScript.ttf"
             fontSize={
               shape === "Heart"
                 ? pipedMessage.length > 12
-                  ? 0.155
-                  : 0.215
+                  ? 0.235
+                  : 0.315
                 : pipedMessage.length > 12
-                ? 0.175
-                : 0.235
+                ? 0.275
+                : 0.355
             }
-            color="#C86D51"
-            fillOpacity={0.7}
+            color="#E89B80"
+            fillOpacity={0.65}
             anchorX="center"
             anchorY="middle"
-            maxWidth={shape === "Heart" ? 1.4 : shape === "Square" ? 1.6 : 1.7}
-            letterSpacing={0.02}
+            maxWidth={shape === "Heart" ? 1.6 : shape === "Square" ? 1.8 : 2.0}
+            letterSpacing={0.03}
           >
             {pipedMessage}
           </Text>
